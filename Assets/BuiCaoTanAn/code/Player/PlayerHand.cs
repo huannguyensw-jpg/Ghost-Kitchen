@@ -1,8 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(100)]
 public class PlayerHand : MonoBehaviour
 {
+    [Header("First Person View")]
+    [SerializeField] private bool followPlayerCamera = true;
+    [SerializeField] private Vector3 viewLocalPosition =
+        new Vector3(1.15f, -1.01f, 1.6f);
+    [SerializeField] private Vector3 viewLocalEulerAngles;
+    [SerializeField] private int firstPersonLayer = 8;
+
     [Header("Hand Point")]
     [SerializeField] private Transform handPoint;
 
@@ -18,6 +27,8 @@ public class PlayerHand : MonoBehaviour
     private PickupItem heldItem;
 
     private Vector3 originalScale;
+    private readonly Dictionary<Transform, int> heldItemLayers =
+        new Dictionary<Transform, int>();
 
     private void Update()
     {
@@ -26,6 +37,21 @@ public class PlayerHand : MonoBehaviour
         {
             DropItem();
         }
+    }
+
+    private void LateUpdate()
+    {
+        if (!followPlayerCamera || playerCamera == null)
+            return;
+
+        Transform cameraTransform = playerCamera.transform;
+
+        transform.position =
+            cameraTransform.TransformPoint(viewLocalPosition);
+
+        transform.rotation =
+            cameraTransform.rotation *
+            Quaternion.Euler(viewLocalEulerAngles);
     }
 
     // =========================
@@ -52,6 +78,7 @@ public class PlayerHand : MonoBehaviour
         heldItem = item;
 
         item.SetPickedUp();
+        MoveHeldItemToFirstPersonLayer(item);
 
         // Lưu scale
         originalScale = item.transform.lossyScale;
@@ -127,6 +154,7 @@ public class PlayerHand : MonoBehaviour
             item.transform.rotation;
 
         item.transform.SetParent(null);
+        RestoreHeldItemLayers();
 
         item.transform.position =
             dropPosition;
@@ -181,6 +209,7 @@ public class PlayerHand : MonoBehaviour
         heldItem = null;
 
         item.transform.SetParent(null);
+        RestoreHeldItemLayers();
 
         Collider col =
             item.GetComponent<Collider>();
@@ -206,6 +235,7 @@ public class PlayerHand : MonoBehaviour
         PickupItem item = heldItem;
 
         heldItem = null;
+        RestoreHeldItemLayers();
 
         return item;
     }
@@ -259,7 +289,40 @@ public class PlayerHand : MonoBehaviour
     }
     public void ClearHeldItem()
     {
+        RestoreHeldItemLayers();
         heldItem = null;
+    }
+
+    private void MoveHeldItemToFirstPersonLayer(PickupItem item)
+    {
+        heldItemLayers.Clear();
+
+        if (item == null)
+            return;
+
+        Transform[] itemTransforms =
+            item.GetComponentsInChildren<Transform>(true);
+
+        foreach (Transform itemTransform in itemTransforms)
+        {
+            heldItemLayers[itemTransform] =
+                itemTransform.gameObject.layer;
+
+            itemTransform.gameObject.layer = firstPersonLayer;
+        }
+    }
+
+    private void RestoreHeldItemLayers()
+    {
+        foreach (KeyValuePair<Transform, int> entry in heldItemLayers)
+        {
+            if (entry.Key != null)
+            {
+                entry.Key.gameObject.layer = entry.Value;
+            }
+        }
+
+        heldItemLayers.Clear();
     }
 
 

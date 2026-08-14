@@ -5,6 +5,10 @@ public class PlayerLook : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform playerCamera;
 
+    [Header("First Person Camera")]
+    [SerializeField] private Vector3 cameraLocalPosition =
+        new Vector3(0f, 1.6f, 0f);
+
     [Header("Mouse Settings")]
     [SerializeField] private float mouseSensitivity = 2.5f;
 
@@ -26,8 +30,16 @@ public class PlayerLook : MonoBehaviour
         Look();
     }
 
+    private void LateUpdate()
+    {
+        UpdateCameraTransform();
+    }
+
     private void Look()
     {
+        if (playerCamera == null)
+            return;
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
@@ -38,6 +50,20 @@ public class PlayerLook : MonoBehaviour
         cameraPitch -= mouseY;
         cameraPitch = Mathf.Clamp(cameraPitch, minLookAngle, maxLookAngle);
 
-        playerCamera.localRotation = Quaternion.Euler(cameraPitch, 0f, 0f);
+    }
+
+    private void UpdateCameraTransform()
+    {
+        if (playerCamera == null)
+            return;
+
+        playerCamera.position =
+            transform.TransformPoint(cameraLocalPosition);
+
+        playerCamera.rotation = Quaternion.Euler(
+            cameraPitch,
+            transform.eulerAngles.y,
+            0f
+        );
     }
 }

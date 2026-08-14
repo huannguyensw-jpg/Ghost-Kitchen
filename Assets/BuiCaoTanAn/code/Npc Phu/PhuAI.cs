@@ -52,8 +52,8 @@ public class PhuAI : MonoBehaviour
     [SerializeField]
     private string[] beforeCookingDialogue =
     {
-        "Chào bạn!",
-        "Bạn giúp tôi làm một dĩa trứng chiên được không?"
+        "Hello!",
+        "Could you make me a plate of fried eggs?"
     };
 
     // =========================================================
@@ -63,7 +63,7 @@ public class PhuAI : MonoBehaviour
     [Header("Cooking Task")]
     [SerializeField]
     private string cookingText =
-        "[Làm dĩa trứng chiên]";
+        "[Cook a Plate of Fried Eggs]";
 
     // TEXT RIÊNG NẰM TRÊN ĐẦU / GỐC
     // Text này sẽ luôn hiện từ lúc nhận nhiệm vụ
@@ -83,7 +83,7 @@ public class PhuAI : MonoBehaviour
 
     [SerializeField]
     private string plateInteractionMessage =
-        "[Đặt dĩa trứng]";
+        "[Place the Egg Plate]";
 
     // =========================================================
     // AFTER COOKING
@@ -94,8 +94,8 @@ public class PhuAI : MonoBehaviour
     [SerializeField]
     private string[] afterCookingDialogue =
     {
-        "Ồ, bạn làm xong rồi!",
-        "Cảm ơn bạn nhé!"
+        "Oh, you finished it!",
+        "Thank you!"
     };
 
     // =========================================================
@@ -788,7 +788,7 @@ public class PhuAI : MonoBehaviour
             return;
 
         talkInteractionText.text =
-            "[Nói chuyện]";
+            "[Click - Talk]";
 
         talkInteractionText.gameObject.SetActive(true);
     }
