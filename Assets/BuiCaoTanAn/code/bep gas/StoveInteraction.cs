@@ -512,10 +512,15 @@ public class StoveInteraction : MonoBehaviour
         }
 
 
-        // Xóa quả trứng đang cầm
+        // Lấy quả trứng khỏi tay và hủy sau khi đập vào chảo.
         if (playerHand != null)
         {
-            playerHand.RemoveHeldItem();
+            PickupItem heldEgg = playerHand.TakeHeldItem();
+
+            if (heldEgg != null)
+            {
+                Destroy(heldEgg.gameObject);
+            }
         }
 
 

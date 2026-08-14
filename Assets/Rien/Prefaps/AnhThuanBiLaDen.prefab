@@ -1,0 +1,166 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5930696079747416558
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 15.084075
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.50051373
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 37.09
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      propertyPath: m_Name
+      value: AnhThuanBiLaDen
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2868713651196005446}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4882474557559793702}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 437092308591397275}
+  m_SourcePrefab: {fileID: 100100000, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+--- !u!1 &6813798319486713023 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e112619559dd54c9f299ca8986c804, type: 3}
+  m_PrefabInstance: {fileID: 5930696079747416558}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2868713651196005446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6813798319486713023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a801b4088981da44af1cb6965d93362, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhuAI
+  player: {fileID: 0}
+  playerHand: {fileID: 0}
+  targetPoint: {fileID: 0}
+  moveSpeed: 40
+  arriveDistance: 2
+  returnPoint: {fileID: 0}
+  minimumDespawnDelay: 5
+  maximumDespawnDelay: 10
+  talkHitbox: {fileID: 6813798319486713023}
+  talkDistance: 50
+  talkInteractionText: {fileID: 0}
+  dialoguePanel: {fileID: 0}
+  dialogueText: {fileID: 0}
+  beforeCookingDialogue:
+  - Hello!
+  - How are you?
+  - Please make me a plate of fried eggs.
+  cookingText: '[Cook a Plate of Fried Eggs]'
+  cookingTaskText: {fileID: 0}
+  plateDropHitbox: {fileID: 6813798319486713023}
+  platePlacePoint: {fileID: 0}
+  plateInteractionText: {fileID: 0}
+  plateInteractionMessage: '[Place the Egg Plate]'
+  afterCookingDialogue:
+  - Good job!
+  - Keep it up!
+--- !u!195 &4882474557559793702
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6813798319486713023}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!65 &437092308591397275
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6813798319486713023}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.024, y: 0.076, z: 0.026}
+  m_Center: {x: 0, y: 0.038, z: 0}

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using TMPro;
 
 public class CustomerSpawner : MonoBehaviour
 {
@@ -48,6 +49,31 @@ public class CustomerSpawner : MonoBehaviour
     )]
     [SerializeField]
     private float navMeshSampleRadius = 2f;
+
+    [Header("NPC Runtime References")]
+    [Tooltip("Player trong scene. Nếu để trống, PhuAI sẽ tự tìm object có tag GameController.")]
+    public Transform player;
+
+    [Tooltip("PlayerHand trong scene. Chỉ cần assign một lần tại Spawner.")]
+    public PlayerHand playerHand;
+
+    [Tooltip("UI hướng dẫn nói chuyện dùng chung cho NPC.")]
+    public TMP_Text talkInteractionText;
+
+    [Tooltip("Panel hội thoại dùng chung cho NPC.")]
+    public GameObject dialoguePanel;
+
+    [Tooltip("Text nội dung hội thoại dùng chung cho NPC.")]
+    public TMP_Text dialogueText;
+
+    [Tooltip("Text nhiệm vụ nấu ăn dùng chung cho NPC.")]
+    public TMP_Text cookingTaskText;
+
+    [Tooltip("Điểm đặt đĩa sau khi giao món.")]
+    public Transform platePlacePoint;
+
+    [Tooltip("UI hướng dẫn đặt đĩa dùng chung cho NPC.")]
+    public TMP_Text plateInteractionText;
 
     private Coroutine spawnCoroutine;
     private int spawnedCount;
@@ -183,6 +209,31 @@ public class CustomerSpawner : MonoBehaviour
 
         // Customer chỉ có thể lập đường đi trên area Pathway.
         agent.areaMask = allowedAreaMask;
+
+        PhuAI npc =
+            customer.GetComponent<PhuAI>();
+
+        if (npc != null)
+        {
+            npc.ConfigureRuntime(
+                player,
+                playerHand,
+                stopPoint,
+                spawnPoint,
+                destination,
+                spawnPosition,
+                talkInteractionText,
+                dialoguePanel,
+                dialogueText,
+                cookingTaskText,
+                platePlacePoint,
+                plateInteractionText
+            );
+
+            // PhuAI tự điều khiển hành trình, state tương tác,
+            // quay về Spawn Point và despawn.
+            return;
+        }
 
         StartCoroutine(
             SendCustomerToDestination(

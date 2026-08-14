@@ -3,14 +3,21 @@ using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using TMPro;
 
+[DisallowMultipleComponent]
+[RequireComponent(typeof(NavMeshAgent))]
 public class PhuAI : MonoBehaviour
 {
+    private static PhuAI talkTextOwner;
+    private static PhuAI plateTextOwner;
+
     // =========================================================
     // REFERENCES
     // =========================================================
 
     [Header("References")]
     [SerializeField] private Transform player;
+    [Tooltip("PlayerHand hiện nằm trên object tay/UI riêng, không nằm trực tiếp trên Player.")]
+    public PlayerHand playerHand;
     [SerializeField] private Transform targetPoint;
 
     // =========================================================
@@ -21,8 +28,25 @@ public class PhuAI : MonoBehaviour
     [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private float arriveDistance = 0.3f;
 
+    [Header("Return And Despawn")]
+    [Tooltip("Điểm NPC quay về sau khi nhận món. Để trống để dùng chính vị trí NPC xuất hiện lúc Start.")]
+    public Transform returnPoint;
+
+    [Tooltip("Thời gian chờ tối thiểu trước khi despawn sau khi NPC đã quay về.")]
+    [Min(0f)] public float minimumDespawnDelay = 5f;
+
+    [Tooltip("Thời gian chờ tối đa trước khi despawn sau khi NPC đã quay về.")]
+    [Min(0f)] public float maximumDespawnDelay = 10f;
+
     private NavMeshAgent agent;
     private bool hasArrived = false;
+    private Vector3 spawnPosition;
+    private Vector3 returnPosition;
+    private float despawnAtTime;
+    private Vector3 runtimeTargetPosition;
+    private Vector3 runtimeReturnPosition;
+    private bool hasRuntimeTargetPosition;
+    private bool hasRuntimeReturnPosition;
 
     // =========================================================
     // TALK
@@ -110,6 +134,8 @@ public class PhuAI : MonoBehaviour
         CookingTask,
         WaitingForPlate,
         AfterCookingDialogue,
+        Returning,
+        WaitingToDespawn,
         Finished
     }
 
@@ -120,11 +146,87 @@ public class PhuAI : MonoBehaviour
     private Camera playerCamera;
 
     // =========================================================
+    // RUNTIME CONFIGURATION
+    // =========================================================
+
+    public void ConfigureRuntime(
+        Transform runtimePlayer,
+        PlayerHand runtimePlayerHand,
+        Transform runtimeTargetPoint,
+        Transform runtimeReturnPoint,
+        Vector3 sampledTargetPosition,
+        Vector3 sampledReturnPosition,
+        TMP_Text runtimeTalkText,
+        GameObject runtimeDialoguePanel,
+        TMP_Text runtimeDialogueText,
+        TMP_Text runtimeCookingTaskText,
+        Transform runtimePlatePlacePoint,
+        TMP_Text runtimePlateInteractionText)
+    {
+        player = runtimePlayer;
+        playerHand = runtimePlayerHand;
+        targetPoint = runtimeTargetPoint;
+        returnPoint = runtimeReturnPoint;
+        runtimeTargetPosition = sampledTargetPosition;
+        runtimeReturnPosition = sampledReturnPosition;
+        hasRuntimeTargetPosition = true;
+        hasRuntimeReturnPosition = true;
+        talkInteractionText = runtimeTalkText;
+        dialoguePanel = runtimeDialoguePanel;
+        dialogueText = runtimeDialogueText;
+        cookingTaskText = runtimeCookingTaskText;
+        platePlacePoint = runtimePlatePlacePoint;
+        plateInteractionText = runtimePlateInteractionText;
+
+        AssignPrefabLocalReferences();
+
+        Debug.Log(
+            "PhuAI: Runtime references assigned for " +
+            gameObject.name +
+            ".",
+            this
+        );
+    }
+
+    private void AssignPrefabLocalReferences()
+    {
+        // Prefab không thể giữ reference tới scene, nhưng có thể dùng
+        // collider trên root cho cả hai loại tương tác.
+        if (talkHitbox == null)
+        {
+            talkHitbox = gameObject;
+        }
+
+        if (plateDropHitbox == null)
+        {
+            plateDropHitbox = gameObject;
+        }
+    }
+
+    private void SetHitboxActive(
+        GameObject hitbox,
+        bool active)
+    {
+        if (hitbox == null ||
+            hitbox == gameObject)
+        {
+            // Không tắt root NPC. State machine sẽ quyết định
+            // loại tương tác nào đang được phép xử lý.
+            return;
+        }
+
+        hitbox.SetActive(active);
+    }
+
+    // =========================================================
     // START
     // =========================================================
 
     private void Start()
     {
+        spawnPosition = transform.position;
+        AssignPrefabLocalReferences();
+
         agent = GetComponent<NavMeshAgent>();
 
         if (agent == null)
@@ -143,6 +245,33 @@ public class PhuAI : MonoBehaviour
 
         playerCamera = Camera.main;
 
+        if (playerHand == null)
+        {
+            playerHand = FindFirstObjectByType<PlayerHand>();
+        }
+
+        if (player == null)
+        {
+            GameObject playerObject =
+                GameObject.FindWithTag("GameController");
+
+            if (playerObject != null)
+            {
+                player = playerObject.transform;
+            }
+            else if (playerCamera != null)
+            {
+                player = playerCamera.transform;
+            }
+        }
+
+        if (playerHand == null)
+        {
+            Debug.LogError(
+                "PhuAI: Chưa gán PlayerHand và không tìm thấy PlayerHand trong scene!"
+            );
+        }
+
         // -----------------------------------------
         // TẮT TOÀN BỘ TEXT BAN ĐẦU
         // -----------------------------------------
@@ -158,33 +287,47 @@ public class PhuAI : MonoBehaviour
         }
 
         // Hitbox nói chuyện
-        if (talkHitbox != null)
-        {
-            talkHitbox.SetActive(false);
-        }
+        SetHitboxActive(
+            talkHitbox,
+            false
+        );
 
         // Hitbox đặt dĩa
-        if (plateDropHitbox != null)
-        {
-            plateDropHitbox.SetActive(false);
-        }
+        SetHitboxActive(
+            plateDropHitbox,
+            false
+        );
 
         // -----------------------------------------
         // BẮT ĐẦU ĐI TỚI ĐIỂM
         // -----------------------------------------
 
-        if (targetPoint != null)
+        if (hasRuntimeTargetPosition ||
+            targetPoint != null)
         {
             currentState = State.Moving;
 
             agent.isStopped = false;
 
-            agent.SetDestination(
-                targetPoint.position
-            );
+            Vector3 destinationPosition =
+                hasRuntimeTargetPosition
+                    ? runtimeTargetPosition
+                    : targetPoint.position;
+
+            if (!agent.SetDestination(
+                    destinationPosition))
+            {
+                Debug.LogError(
+                    "PhuAI: Không thể tạo đường đến destination trên NavMesh."
+                );
+
+                return;
+            }
 
             Debug.Log(
-                "Phú bắt đầu đi tới điểm cố định."
+                "PhuAI: Bắt đầu đi tới NavMesh destination " +
+                destinationPosition +
+                "."
             );
         }
         else
@@ -204,8 +347,13 @@ public class PhuAI : MonoBehaviour
 
     private void Update()
     {
-        if (player == null)
+        if (player == null &&
+            currentState != State.Returning &&
+            currentState != State.WaitingToDespawn &&
+            currentState != State.Finished)
+        {
             return;
+        }
 
         switch (currentState)
         {
@@ -245,6 +393,18 @@ public class PhuAI : MonoBehaviour
 
                 break;
 
+            case State.Returning:
+
+                UpdateReturning();
+
+                break;
+
+            case State.WaitingToDespawn:
+
+                UpdateDespawnCountdown();
+
+                break;
+
             case State.Finished:
 
                 break;
@@ -257,19 +417,45 @@ public class PhuAI : MonoBehaviour
 
     private void UpdateMoving()
     {
-        if (targetPoint == null)
+        if (agent == null ||
+            !agent.isOnNavMesh ||
+            agent.pathPending)
+        {
             return;
+        }
 
         // Luôn giữ tốc độ theo Inspector
         agent.speed = moveSpeed;
 
-        float distance =
+        Vector3 destinationPosition =
+            hasRuntimeTargetPosition
+                ? runtimeTargetPosition
+                : targetPoint != null
+                    ? targetPoint.position
+                    : transform.position;
+
+        float directDistance =
             Vector3.Distance(
                 transform.position,
-                targetPoint.position
+                destinationPosition
             );
 
-        if (distance <= arriveDistance)
+        float stopDistance =
+            Mathf.Max(
+                arriveDistance,
+                agent.stoppingDistance
+            ) + 0.1f;
+
+        bool reachedByPath =
+            agent.hasPath &&
+            agent.remainingDistance <= stopDistance;
+
+        bool reachedByPosition =
+            !agent.hasPath &&
+            directDistance <= stopDistance;
+
+        if (reachedByPath ||
+            reachedByPosition)
         {
             ArriveAtTarget();
         }
@@ -292,14 +478,14 @@ public class PhuAI : MonoBehaviour
             State.WaitingForTalk;
 
         Debug.Log(
-            "Phú đã tới điểm cố định."
+            "PhuAI: Đã tới destination và chuyển sang WaitingForTalk."
         );
 
         // Bật hitbox nói chuyện
-        if (talkHitbox != null)
-        {
-            talkHitbox.SetActive(true);
-        }
+        SetHitboxActive(
+            talkHitbox,
+            true
+        );
     }
 
     // =========================================================
@@ -308,9 +494,14 @@ public class PhuAI : MonoBehaviour
 
     private void UpdateWaitingForTalk()
     {
+        GameObject interactionTarget =
+            talkHitbox != null
+                ? talkHitbox
+                : gameObject;
+
         // Chỉ hiện [Nói chuyện] khi tâm đang trỏ vào NPC
         bool hoveringTalk =
-            IsMouseOverObject(talkHitbox);
+            IsMouseOverObject(interactionTarget);
 
         float distance =
             Vector3.Distance(
@@ -347,10 +538,10 @@ public class PhuAI : MonoBehaviour
 
         HideTalkText();
 
-        if (talkHitbox != null)
-        {
-            talkHitbox.SetActive(false);
-        }
+        SetHitboxActive(
+            talkHitbox,
+            false
+        );
 
         ShowCurrentDialogue();
     }
@@ -507,10 +698,10 @@ public class PhuAI : MonoBehaviour
         //
         // Ta bật hitbox đặt dĩa.
 
-        if (plateDropHitbox != null)
-        {
-            plateDropHitbox.SetActive(true);
-        }
+        SetHitboxActive(
+            plateDropHitbox,
+            true
+        );
 
         currentState =
             State.WaitingForPlate;
@@ -532,16 +723,21 @@ public class PhuAI : MonoBehaviour
         // TEXT ĐẶT DĨA CHỈ HIỆN KHI NHÌN VÀO HITBOX
         // -----------------------------------------
 
+        GameObject interactionTarget =
+            plateDropHitbox != null
+                ? plateDropHitbox
+                : gameObject;
+
         bool hoveringPlate =
             IsMouseOverObject(
-                plateDropHitbox
+                interactionTarget
             );
 
         float distance =
             Vector3.Distance(
                 player.position,
-                plateDropHitbox != null
-                    ? plateDropHitbox.transform.position
+                interactionTarget != null
+                    ? interactionTarget.transform.position
                     : transform.position
             );
 
@@ -568,13 +764,10 @@ public class PhuAI : MonoBehaviour
 
     private void TryPlacePlate()
     {
-        PlayerHand playerHand =
-            player.GetComponent<PlayerHand>();
-
         if (playerHand == null)
         {
             Debug.LogError(
-                "PhuAI: Player không có PlayerHand!"
+                "PhuAI: Không tìm thấy PlayerHand để đặt đĩa!"
             );
 
             return;
@@ -628,29 +821,14 @@ public class PhuAI : MonoBehaviour
     private bool PlateHasVisibleEgg(
         Transform plate)
     {
-        Transform[] children =
-            plate.GetComponentsInChildren<Transform>(
-                true
-            );
+        if (plate == null)
+            return false;
 
-        foreach (Transform child in children)
-        {
-            if (child == plate)
-                continue;
+        PlateEgg plateEgg =
+            plate.GetComponent<PlateEgg>();
 
-            string objectName =
-                child.name.ToLower();
-
-            if (objectName.Contains("egg"))
-            {
-                if (child.gameObject.activeInHierarchy)
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return plateEgg != null &&
+               plateEgg.HasEgg();
     }
 
     // =========================================================
@@ -660,14 +838,24 @@ public class PhuAI : MonoBehaviour
     private void PlacePlate(
         PickupItem plate)
     {
-        PlayerHand playerHand =
-            player.GetComponent<PlayerHand>();
-
         if (playerHand == null)
             return;
 
+        PickupItem heldPlate =
+            playerHand.TakeHeldItem();
+
+        if (heldPlate == null ||
+            heldPlate != plate)
+        {
+            Debug.LogError(
+                "PhuAI: Đĩa cần đặt không trùng với vật phẩm đang cầm!"
+            );
+
+            return;
+        }
+
         Transform plateTransform =
-            plate.transform;
+            heldPlate.transform;
 
         // Tách khỏi tay
         plateTransform.SetParent(null);
@@ -680,6 +868,14 @@ public class PhuAI : MonoBehaviour
 
             plateTransform.rotation =
                 platePlacePoint.rotation;
+        }
+        else
+        {
+            plateTransform.position =
+                transform.position;
+
+            plateTransform.rotation =
+                transform.rotation;
         }
 
         // Collider
@@ -706,17 +902,14 @@ public class PhuAI : MonoBehaviour
                 Vector3.zero;
         }
 
-        // Xóa khỏi tay
-        playerHand.ClearHeldItem();
-
         // -----------------------------------------
         // TẮT HITBOX ĐẶT DĨA
         // -----------------------------------------
 
-        if (plateDropHitbox != null)
-        {
-            plateDropHitbox.SetActive(false);
-        }
+        SetHitboxActive(
+            plateDropHitbox,
+            false
+        );
 
         // -----------------------------------------
         // TẮT TEXT ĐẶT DĨA
@@ -771,11 +964,154 @@ public class PhuAI : MonoBehaviour
         HideCookingTaskText();
 
         currentState =
+            State.Returning;
+
+        Debug.Log(
+            "Phú đã nói chuyện xong và bắt đầu quay về điểm spawn."
+        );
+
+        StartReturning();
+    }
+
+    // =========================================================
+    // RETURN TO SPAWN
+    // =========================================================
+
+    private void StartReturning()
+    {
+        returnPosition =
+            hasRuntimeReturnPosition
+                ? runtimeReturnPosition
+                : returnPoint != null
+                ? returnPoint.position
+                : spawnPosition;
+
+        if (agent == null ||
+            !agent.isOnNavMesh)
+        {
+            Debug.LogWarning(
+                "PhuAI: NPC không ở trên NavMesh, bắt đầu đếm thời gian despawn tại chỗ."
+            );
+
+            BeginDespawnCountdown();
+            return;
+        }
+
+        agent.speed = moveSpeed;
+        agent.stoppingDistance = arriveDistance;
+        agent.isStopped = false;
+
+        if (!agent.SetDestination(returnPosition))
+        {
+            Debug.LogWarning(
+                "PhuAI: Không thể tạo đường về điểm spawn, bắt đầu đếm thời gian despawn tại chỗ."
+            );
+
+            BeginDespawnCountdown();
+            return;
+        }
+
+        Debug.Log(
+            "PhuAI: Đang quay về điểm spawn tại " +
+            returnPosition +
+            "."
+        );
+    }
+
+    private void UpdateReturning()
+    {
+        if (agent == null ||
+            !agent.isOnNavMesh)
+        {
+            BeginDespawnCountdown();
+            return;
+        }
+
+        if (agent.pathPending)
+            return;
+
+        if (agent.pathStatus ==
+            NavMeshPathStatus.PathInvalid)
+        {
+            Debug.LogWarning(
+                "PhuAI: Đường về điểm spawn không hợp lệ."
+            );
+
+            BeginDespawnCountdown();
+            return;
+        }
+
+        float stopDistance =
+            Mathf.Max(
+                arriveDistance,
+                agent.stoppingDistance
+            );
+
+        if (agent.remainingDistance <=
+            stopDistance)
+        {
+            BeginDespawnCountdown();
+        }
+    }
+
+    private void BeginDespawnCountdown()
+    {
+        if (currentState ==
+            State.WaitingToDespawn)
+        {
+            return;
+        }
+
+        if (agent != null &&
+            agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+        }
+
+        float minimumDelay =
+            Mathf.Min(
+                minimumDespawnDelay,
+                maximumDespawnDelay
+            );
+
+        float maximumDelay =
+            Mathf.Max(
+                minimumDespawnDelay,
+                maximumDespawnDelay
+            );
+
+        float delay =
+            Random.Range(
+                minimumDelay,
+                maximumDelay
+            );
+
+        despawnAtTime =
+            Time.time + delay;
+
+        currentState =
+            State.WaitingToDespawn;
+
+        Debug.Log(
+            "PhuAI: Đã về điểm spawn. NPC sẽ despawn sau " +
+            delay.ToString("0.0") +
+            " giây."
+        );
+    }
+
+    private void UpdateDespawnCountdown()
+    {
+        if (Time.time < despawnAtTime)
+            return;
+
+        currentState =
             State.Finished;
 
         Debug.Log(
-            "Phú đã nói chuyện xong."
+            "PhuAI: Despawn NPC sau khi hoàn thành đơn hàng."
         );
+
+        Destroy(gameObject);
     }
 
     // =========================================================
@@ -786,6 +1122,8 @@ public class PhuAI : MonoBehaviour
     {
         if (talkInteractionText == null)
             return;
+
+        talkTextOwner = this;
 
         talkInteractionText.text =
             "[Click - Talk]";
@@ -798,7 +1136,18 @@ public class PhuAI : MonoBehaviour
         if (talkInteractionText == null)
             return;
 
+        if (talkTextOwner != null &&
+            talkTextOwner != this)
+        {
+            return;
+        }
+
         talkInteractionText.gameObject.SetActive(false);
+
+        if (talkTextOwner == this)
+        {
+            talkTextOwner = null;
+        }
     }
 
     // =========================================================
@@ -833,6 +1182,8 @@ public class PhuAI : MonoBehaviour
         if (plateInteractionText == null)
             return;
 
+        plateTextOwner = this;
+
         plateInteractionText.text =
             plateInteractionMessage;
 
@@ -844,7 +1195,41 @@ public class PhuAI : MonoBehaviour
         if (plateInteractionText == null)
             return;
 
+        if (plateTextOwner != null &&
+            plateTextOwner != this)
+        {
+            return;
+        }
+
         plateInteractionText.gameObject.SetActive(false);
+
+        if (plateTextOwner == this)
+        {
+            plateTextOwner = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (talkTextOwner == this)
+        {
+            if (talkInteractionText != null)
+            {
+                talkInteractionText.gameObject.SetActive(false);
+            }
+
+            talkTextOwner = null;
+        }
+
+        if (plateTextOwner == this)
+        {
+            if (plateInteractionText != null)
+            {
+                plateInteractionText.gameObject.SetActive(false);
+            }
+
+            plateTextOwner = null;
+        }
     }
 
     // =========================================================
@@ -868,9 +1253,17 @@ public class PhuAI : MonoBehaviour
         if (Mouse.current == null)
             return false;
 
+        Vector2 screenPoint =
+            Cursor.lockState == CursorLockMode.Locked
+                ? new Vector2(
+                    Screen.width * 0.5f,
+                    Screen.height * 0.5f
+                )
+                : Mouse.current.position.ReadValue();
+
         Ray ray =
             playerCamera.ScreenPointToRay(
-                Mouse.current.position.ReadValue()
+                screenPoint
             );
 
         if (Physics.Raycast(

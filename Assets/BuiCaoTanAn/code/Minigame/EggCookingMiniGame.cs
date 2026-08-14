@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class EggCookingMiniGame : MonoBehaviour
 {
@@ -16,8 +17,10 @@ public class EggCookingMiniGame : MonoBehaviour
     [Header("Moving Bar")]
     [SerializeField] private RectTransform movingBar;
 
-    [Header("Center Zone")]
-    [SerializeField] private RectTransform centerZone;
+    [Header("Success Zone")]
+    [Tooltip("Vùng thành công trên Track. Có thể chỉnh vị trí và kích thước RectTransform trong Inspector.")]
+    [FormerlySerializedAs("centerZone")]
+    public RectTransform successZone;
 
 
     // =========================================================
@@ -60,6 +63,9 @@ public class EggCookingMiniGame : MonoBehaviour
     private bool isPlaying;
     private bool movingRight;
 
+    // Không nhận lại cú click vừa dùng để đặt trứng vào chảo.
+    private int startFrame;
+
     private float minX;
     private float maxX;
 
@@ -95,9 +101,28 @@ public class EggCookingMiniGame : MonoBehaviour
         MoveBar();
 
 
-        if (Mouse.current != null &&
+        if (Time.frameCount == startFrame &&
+            Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame)
         {
+            Debug.Log(
+                "[EggMiniGame] Ignored the crack-egg click on start frame " +
+                startFrame + "."
+            );
+        }
+
+
+        if (Time.frameCount > startFrame &&
+            Mouse.current != null &&
+            Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            Debug.Log(
+                "[EggMiniGame] Stop click received at frame " +
+                Time.frameCount +
+                ", bar local X = " +
+                movingBar.localPosition.x
+            );
+
             StopBar();
         }
     }
@@ -136,10 +161,10 @@ public class EggCookingMiniGame : MonoBehaviour
             return;
         }
 
-        if (centerZone == null)
+        if (successZone == null)
         {
             Debug.LogError(
-                "❌ Center Zone chưa được gán!"
+                "❌ Success Zone chưa được gán!"
             );
 
             return;
@@ -179,17 +204,20 @@ public class EggCookingMiniGame : MonoBehaviour
 
 
         movingRight = true;
+        startFrame = Time.frameCount;
         isPlaying = true;
 
 
         Debug.Log(
-            "🎮 Mini game bắt đầu!"
+            "[EggMiniGame] Started at frame " +
+            startFrame +
+            ". Waiting for the next click."
         );
 
         Debug.Log(
-            "Min X = " +
+            "[EggMiniGame] Movement range: min X = " +
             minX +
-            " | Max X = " +
+            ", max X = " +
             maxX
         );
     }
@@ -364,7 +392,13 @@ public class EggCookingMiniGame : MonoBehaviour
 
 
         bool success =
-            IsBarInsideCenterZone();
+            IsBarInsideSuccessZone();
+
+
+        Debug.Log(
+            "[EggMiniGame] Result evaluated: " +
+            (success ? "SUCCESS" : "FAIL")
+        );
 
 
         if (success)
@@ -382,7 +416,7 @@ public class EggCookingMiniGame : MonoBehaviour
     // CHECK CENTER
     // =========================================================
 
-    private bool IsBarInsideCenterZone()
+    private bool IsBarInsideSuccessZone()
     {
         Vector3[] barCorners =
             new Vector3[4];
@@ -395,46 +429,61 @@ public class EggCookingMiniGame : MonoBehaviour
             barCorners
         );
 
-        centerZone.GetWorldCorners(
+        successZone.GetWorldCorners(
             zoneCorners
         );
 
 
-        float barLeft =
-            barCorners[0].x;
+        float barLeft = Mathf.Min(
+            barCorners[0].x,
+            barCorners[3].x
+        );
 
-        float barRight =
-            barCorners[3].x;
+        float barRight = Mathf.Max(
+            barCorners[0].x,
+            barCorners[3].x
+        );
+
+        float barCenter =
+            (barLeft + barRight) * 0.5f;
 
 
-        float zoneLeft =
-            zoneCorners[0].x;
+        float zoneLeft = Mathf.Min(
+            zoneCorners[0].x,
+            zoneCorners[3].x
+        );
 
-        float zoneRight =
-            zoneCorners[3].x;
+        float zoneRight = Mathf.Max(
+            zoneCorners[0].x,
+            zoneCorners[3].x
+        );
 
 
+        // Chỉ cần tâm của Moving Bar nằm trong Success Zone.
+        // Cách này ổn định khi hai RectTransform có kích thước khác nhau.
         bool success =
-            barLeft >= zoneLeft &&
-            barRight <= zoneRight;
+            barCenter >= zoneLeft &&
+            barCenter <= zoneRight;
 
 
         Debug.Log(
-            "Bar: " +
+            "[EggMiniGame] Bar world range: " +
             barLeft +
             " -> " +
-            barRight
+            barRight +
+            ", center = " +
+            barCenter
         );
 
         Debug.Log(
-            "Zone: " +
+            "[EggMiniGame] Success zone world range: " +
             zoneLeft +
             " -> " +
             zoneRight
         );
 
         Debug.Log(
-            "SUCCESS = " +
+            "[EggMiniGame] Bar center inside success zone = " +
             success
         );
 
@@ -450,7 +499,7 @@ public class EggCookingMiniGame : MonoBehaviour
     private void Success()
     {
         Debug.Log(
-            "🟢 MINI GAME SUCCESS!"
+            "[EggMiniGame] SUCCESS - showing the cooked egg on the pan."
         );
 
 
@@ -460,6 +509,13 @@ public class EggCookingMiniGame : MonoBehaviour
         if (miniGamePanel != null)
         {
             miniGamePanel.SetActive(false);
+        }
+
+
+        // Đảm bảo hiệu ứng thất bại cũ không còn hiện khi đã thành công.
+        if (failObject != null)
+        {
+            failObject.SetActive(false);
         }
 
 
@@ -479,7 +535,7 @@ public class EggCookingMiniGame : MonoBehaviour
     private void Fail()
     {
         Debug.Log(
-            "🔴 MINI GAME FAIL!"
+            "[EggMiniGame] FAIL - showing the fail object."
         );
 
 
