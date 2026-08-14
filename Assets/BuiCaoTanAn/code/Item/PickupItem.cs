@@ -4,6 +4,21 @@ using TMPro;
 
 public class PickupItem : MonoBehaviour
 {
+    public enum ItemType
+    {
+        None,
+        OilBottle,
+        Egg,
+        Meat,
+        Vegetable,
+        Pan,
+        Plate,
+        Other
+    }
+
+    [Header("Item Type")]
+    [SerializeField] private ItemType itemType = ItemType.Other;
+
     [Header("References")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private PlayerHand playerHand;
@@ -14,6 +29,8 @@ public class PickupItem : MonoBehaviour
 
     private bool isLookingAtItem = false;
 
+    private static PickupItem currentItem;
+
     private void Update()
     {
         CheckPlayerLookingAtItem();
@@ -22,7 +39,10 @@ public class PickupItem : MonoBehaviour
             Keyboard.current != null &&
             Keyboard.current.eKey.wasPressedThisFrame)
         {
-            playerHand.PickupItem(this);
+            if (playerHand != null)
+            {
+                playerHand.PickupItem(this);
+            }
         }
     }
 
@@ -30,10 +50,17 @@ public class PickupItem : MonoBehaviour
     {
         isLookingAtItem = false;
 
-        // Không cho hiện chữ nếu đang cầm vật phẩm này
+        if (playerCamera == null || playerHand == null)
+            return;
+
         if (playerHand.IsHoldingItem(this))
         {
-            HidePickupText();
+            if (currentItem == this)
+            {
+                HidePickupText();
+                currentItem = null;
+            }
+
             return;
         }
 
@@ -47,17 +74,32 @@ public class PickupItem : MonoBehaviour
             pickupDistance
         ))
         {
-            // Kiểm tra ray có trúng chính vật phẩm này không
             if (hit.transform == transform ||
                 hit.transform.IsChildOf(transform))
             {
                 isLookingAtItem = true;
-                ShowPickupText();
+
+                if (currentItem != this)
+                {
+                    if (currentItem != null)
+                    {
+                        currentItem.HidePickupText();
+                    }
+
+                    currentItem = this;
+
+                    ShowPickupText();
+                }
+
                 return;
             }
         }
 
-        HidePickupText();
+        if (currentItem == this)
+        {
+            HidePickupText();
+            currentItem = null;
+        }
     }
 
     private void ShowPickupText()
@@ -79,12 +121,41 @@ public class PickupItem : MonoBehaviour
 
     public void HideText()
     {
-        HidePickupText();
+        if (currentItem == this)
+        {
+            HidePickupText();
+            currentItem = null;
+        }
     }
 
     public void SetPickedUp()
     {
-        HidePickupText();
+        if (currentItem == this)
+        {
+            HidePickupText();
+            currentItem = null;
+        }
+
         isLookingAtItem = false;
+    }
+
+    // =========================
+    // ITEM TYPE
+    // =========================
+
+    public ItemType GetItemType()
+    {
+        return itemType;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (playerCamera == null)
+            return;
+
+        Gizmos.DrawRay(
+            playerCamera.transform.position,
+            playerCamera.transform.forward * pickupDistance
+        );
     }
 }
