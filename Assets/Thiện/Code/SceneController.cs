@@ -50,4 +50,6 @@ public class SceneController : MonoBehaviour
         Debug.Log("Đã gán lệnh thoát game!");
         Application.Quit();
     }
+
+    
 }
