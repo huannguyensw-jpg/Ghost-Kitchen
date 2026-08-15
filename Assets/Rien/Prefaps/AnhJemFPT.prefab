@@ -109,8 +109,10 @@ MonoBehaviour:
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - Hello!
-  - How are you?
+  - 'Hello! '
+  - 'h
+
+'
   - Please make me a plate of fried eggs.
   cookingText: '[Cook a Plate of Fried Eggs]'
   cookingTaskText: {fileID: 0}
