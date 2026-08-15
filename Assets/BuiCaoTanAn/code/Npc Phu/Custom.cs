@@ -9,7 +9,7 @@ using TMPro;
 using UnityEditor;
 #endif
 
-public class Custome : MonoBehaviour
+public class Custom : MonoBehaviour
 {
     [Header("Customer Prefabs")]
     [SerializeField]

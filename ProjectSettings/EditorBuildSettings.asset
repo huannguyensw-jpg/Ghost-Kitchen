@@ -9,13 +9,13 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 5ea705602e871ee489cbd4caff271b1d
   - enabled: 1
-    path: Assets/BuiCaoTanAn/1.unity
+    path: Assets/BuiCaoTanAn/Scenes/Introduction.unity
     guid: 3e89eeb86ea83af4e9e130ffe34bbad5
   - enabled: 1
-    path: Assets/BuiCaoTanAn/Test.unity
+    path: Assets/BuiCaoTanAn/Scenes/Maingame.unity
     guid: 462d09aa40a540144a58fde66a983533
   - enabled: 1
-    path: Assets/BuiCaoTanAn/night.unity
+    path: Assets/BuiCaoTanAn/Scenes/Night.unity
     guid: fbc16876ff2c36244a752977cd6ef03f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

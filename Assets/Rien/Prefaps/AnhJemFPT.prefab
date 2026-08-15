@@ -101,28 +101,37 @@ MonoBehaviour:
   moveSpeed: 40
   arriveDistance: 2
   returnPoint: {fileID: 0}
-  minimumDespawnDelay: 5
-  maximumDespawnDelay: 10
   talkHitbox: {fileID: 8887398776584402675}
   talkDistance: 50
   talkInteractionText: {fileID: 0}
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - 'Hello! '
-  - 'h
-
-'
-  - Please make me a plate of fried eggs.
-  cookingText: '[Cook a Plate of Fried Eggs]'
+  - "Qu\u1EA3n l\xFD: C\u1EADu l\xE0 \u0111\u1EA7u b\u1EBFp m\u1EDBi \u0111\u01B0\u1EE3c
+    thu\xEA ph\u1EA3i kh\xF4ng?"
+  - "Qu\u1EA3n l\xFD: T\xF4i l\xE0 qu\u1EA3n l\xFD nh\xE0 h\xE0ng. H\xF4m nay t\xF4i
+    s\u1EBD tr\u1EF1c ti\u1EBFp xem c\u1EADu l\xE0m vi\u1EC7c th\u1EBF n\xE0o."
+  - "Qu\u1EA3n l\xFD: B\u1EAFt \u0111\u1EA7u b\u1EB1ng m\xF3n \u0111\u01A1n gi\u1EA3n
+    th\xF4i, h\xE3y l\xE0m cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn."
+  - "Qu\u1EA3n l\xFD: Ch\u1ECDn nguy\xEAn li\u1EC7u, b\u1EADt b\u1EBFp v\xE0 nh\u1EDB
+    \u0111\u1EEBng \u0111\u1EC3 tr\u1EE9ng b\u1ECB ch\xE1y."
+  - "Qu\u1EA3n l\xFD: Khi l\xE0m xong, mang \u0111\u0129a \u0111\u1EBFn \u0111\xE2y.
+    T\xF4i s\u1EBD \u0111\xE1nh gi\xE1 k\u1EBFt qu\u1EA3."
+  cookingText: '[Nấu một đĩa trứng chiên]'
   cookingTaskText: {fileID: 0}
   plateDropHitbox: {fileID: 8887398776584402675}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Place the Egg Plate]'
+  plateInteractionMessage: '[Đặt đĩa trứng]'
   afterCookingDialogue:
-  - Good job!
-  - Keep it up!
+  - "Qu\u1EA3n l\xFD: \u0110\u01B0\u1EE3c r\u1ED3i, \u0111\u1EC3 t\xF4i xem..."
+  - "Qu\u1EA3n l\xFD: M\xF3n \u0103n \u0111\u1EA1t y\xEAu c\u1EA7u. T\u1ED1c \u0111\u1ED9
+    c\u0169ng kh\xF4ng t\u1EC7 \u0111\u1ED1i v\u1EDBi ng\xE0y \u0111\u1EA7u ti\xEAn."
+  - "Qu\u1EA3n l\xFD: Ch\xE0o m\u1EEBng \u0111\u1EBFn v\u1EDBi nh\xE0 h\xE0ng. C\u1ED1
+    g\u1EAFng \u0111\u1EEBng khi\u1EBFn t\xF4i ph\u1EA3i sa th\u1EA3i c\u1EADu."
+  - "Qu\u1EA3n l\xFD: V\xE0 n\u1EBFu c\u1EADu th\u1EA5y \u0111i\u1EC1u g\xEC k\u1EF3
+    l\u1EA1 trong ca \u0111\xEAm... c\u1EE9 ti\u1EBFp t\u1EE5c n\u1EA5u. \u0110\u1EEBng
+    \u0111\u1EB7t c\xE2u h\u1ECFi."
 --- !u!195 &3357607808968868049
 NavMeshAgent:
   m_ObjectHideFlags: 0

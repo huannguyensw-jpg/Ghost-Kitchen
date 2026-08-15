@@ -106,7 +106,7 @@ public class PickupItem : MonoBehaviour
     {
         if (pickupText != null)
         {
-            pickupText.text = "[E - Pick Up]";
+            pickupText.text = "[E - Nhặt]";
             pickupText.gameObject.SetActive(true);
         }
     }

@@ -109,18 +109,18 @@ MonoBehaviour:
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - Hello!
-  - How are you?
-  - Please make me a plate of fried eggs.
-  cookingText: '[Cook a Plate of Fried Eggs]'
+  - Xin chào!
+  - Hôm nay đầu bếp khỏe không?
+  - Cho tôi một đĩa trứng chiên nhé.
+  cookingText: '[Nấu một đĩa trứng chiên]'
   cookingTaskText: {fileID: 0}
   plateDropHitbox: {fileID: 6813798319486713023}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Place the Egg Plate]'
+  plateInteractionMessage: '[Đặt đĩa trứng]'
   afterCookingDialogue:
-  - Good job!
-  - Keep it up!
+  - Món ăn ngon lắm!
+  - Cảm ơn đầu bếp!
 --- !u!195 &4882474557559793702
 NavMeshAgent:
   m_ObjectHideFlags: 0

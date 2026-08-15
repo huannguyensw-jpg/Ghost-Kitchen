@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using TMPro;
@@ -77,6 +78,9 @@ public class CustomerSpawner : MonoBehaviour
 
     private Coroutine spawnCoroutine;
     private int spawnedCount;
+    private readonly List<GameObject> shuffledCustomerPrefabs =
+        new List<GameObject>();
+    private GameObject lastSelectedPrefab;
 
     private void OnEnable()
     {
@@ -172,15 +176,12 @@ public class CustomerSpawner : MonoBehaviour
             return;
         }
 
-        GameObject selectedPrefab =
-            customerPrefabs[
-                Random.Range(0, customerPrefabs.Length)
-            ];
+        GameObject selectedPrefab = GetNextCustomerPrefab();
 
         if (selectedPrefab == null)
         {
             Debug.LogWarning(
-                "CustomerSpawner: Selected prefab is null."
+                "CustomerSpawner: No valid customer prefab assigned."
             );
 
             return;
@@ -242,6 +243,63 @@ public class CustomerSpawner : MonoBehaviour
                 destination
             )
         );
+    }
+
+    private GameObject GetNextCustomerPrefab()
+    {
+        if (shuffledCustomerPrefabs.Count == 0)
+        {
+            RefillShuffledCustomerPrefabs();
+        }
+
+        if (shuffledCustomerPrefabs.Count == 0)
+        {
+            return null;
+        }
+
+        int lastPosition = shuffledCustomerPrefabs.Count - 1;
+        GameObject selectedPrefab = shuffledCustomerPrefabs[lastPosition];
+        shuffledCustomerPrefabs.RemoveAt(lastPosition);
+        lastSelectedPrefab = selectedPrefab;
+
+        return selectedPrefab;
+    }
+
+    private void RefillShuffledCustomerPrefabs()
+    {
+        shuffledCustomerPrefabs.Clear();
+
+        for (int i = 0; i < customerPrefabs.Length; i++)
+        {
+            GameObject prefab = customerPrefabs[i];
+            if (prefab != null &&
+                !shuffledCustomerPrefabs.Contains(prefab))
+            {
+                shuffledCustomerPrefabs.Add(prefab);
+            }
+        }
+
+        for (int i = shuffledCustomerPrefabs.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            GameObject temporaryPrefab = shuffledCustomerPrefabs[i];
+            shuffledCustomerPrefabs[i] =
+                shuffledCustomerPrefabs[randomIndex];
+            shuffledCustomerPrefabs[randomIndex] = temporaryPrefab;
+        }
+
+        // Danh sách được lấy từ cuối. Tránh NPC cuối vòng trước
+        // xuất hiện lại ngay ở đầu vòng mới khi có từ 2 prefab trở lên.
+        int nextPosition = shuffledCustomerPrefabs.Count - 1;
+        if (nextPosition > 0 &&
+            shuffledCustomerPrefabs[nextPosition] == lastSelectedPrefab)
+        {
+            GameObject temporaryPrefab =
+                shuffledCustomerPrefabs[nextPosition];
+            shuffledCustomerPrefabs[nextPosition] =
+                shuffledCustomerPrefabs[0];
+            shuffledCustomerPrefabs[0] = temporaryPrefab;
+        }
     }
 
     private IEnumerator SendCustomerToDestination(

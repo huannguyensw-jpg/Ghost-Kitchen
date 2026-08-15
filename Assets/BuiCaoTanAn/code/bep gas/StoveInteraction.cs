@@ -239,7 +239,7 @@ public class StoveInteraction : MonoBehaviour
         if (cookingFailed)
         {
             interactionText.text =
-                "[Click - Reset Stove]";
+                "[Nhấp chuột - Khởi động lại bếp]";
 
             interactionText.gameObject.SetActive(true);
 
@@ -251,7 +251,7 @@ public class StoveInteraction : MonoBehaviour
         if (!stoveOn)
         {
             interactionText.text =
-                "[Click - Turn On Stove]";
+                "[Nhấp chuột - Bật bếp]";
 
             interactionText.gameObject.SetActive(true);
 
@@ -303,7 +303,7 @@ public class StoveInteraction : MonoBehaviour
                         !plate.HasEgg())
                     {
                         interactionText.text =
-                            "[Click - Take Egg]";
+                            "[Nhấp chuột - Lấy trứng]";
 
                         interactionText.gameObject.SetActive(true);
 
@@ -340,7 +340,7 @@ public class StoveInteraction : MonoBehaviour
                     PickupItem.ItemType.OilBottle))
             {
                 interactionText.text =
-                    "[Click - Pour Oil]";
+                    "[Nhấp chuột - Đổ dầu]";
 
                 interactionText.gameObject.SetActive(true);
 
@@ -362,7 +362,7 @@ public class StoveInteraction : MonoBehaviour
                 PickupItem.ItemType.Egg))
         {
             interactionText.text =
-                "[Click - Crack Egg]";
+                "[Nhấp chuột - Đập trứng]";
 
             interactionText.gameObject.SetActive(true);
 

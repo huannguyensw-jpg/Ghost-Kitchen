@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class DeleteEggPlate : MonoBehaviour
 {
+    public static event Action<PickupItem> PlateDestroyed;
+
     [Header("Delete Settings")]
     [SerializeField] private float deleteTime = 3f;
 
@@ -214,6 +217,10 @@ public class DeleteEggPlate : MonoBehaviour
         platesInZone.Remove(plate);
 
         Destroy(plate.gameObject);
+
+        // Chỉ xác nhận sau khi lệnh Destroy đã được gửi cho Unity.
+        // NPC đang chờ đúng chiếc đĩa này mới được phép rời đi.
+        PlateDestroyed?.Invoke(plate);
     }
 
     // =========================================================

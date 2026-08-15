@@ -32,21 +32,16 @@ public class PhuAI : MonoBehaviour
     [Tooltip("Điểm NPC quay về sau khi nhận món. Để trống để dùng chính vị trí NPC xuất hiện lúc Start.")]
     public Transform returnPoint;
 
-    [Tooltip("Thời gian chờ tối thiểu trước khi despawn sau khi NPC đã quay về.")]
-    [Min(0f)] public float minimumDespawnDelay = 5f;
-
-    [Tooltip("Thời gian chờ tối đa trước khi despawn sau khi NPC đã quay về.")]
-    [Min(0f)] public float maximumDespawnDelay = 10f;
-
     private NavMeshAgent agent;
     private bool hasArrived = false;
     private Vector3 spawnPosition;
     private Vector3 returnPosition;
-    private float despawnAtTime;
     private Vector3 runtimeTargetPosition;
     private Vector3 runtimeReturnPosition;
     private bool hasRuntimeTargetPosition;
     private bool hasRuntimeReturnPosition;
+    private PickupItem servedPlate;
+    private bool servedPlateDestroyed;
 
     // =========================================================
     // TALK
@@ -76,8 +71,8 @@ public class PhuAI : MonoBehaviour
     [SerializeField]
     private string[] beforeCookingDialogue =
     {
-        "Hello!",
-        "Could you make me a plate of fried eggs?"
+        "Xin chào!",
+        "Cho tôi một đĩa trứng chiên nhé."
     };
 
     // =========================================================
@@ -87,7 +82,7 @@ public class PhuAI : MonoBehaviour
     [Header("Cooking Task")]
     [SerializeField]
     private string cookingText =
-        "[Cook a Plate of Fried Eggs]";
+        "[Nấu một đĩa trứng chiên]";
 
     // TEXT RIÊNG NẰM TRÊN ĐẦU / GỐC
     // Text này sẽ luôn hiện từ lúc nhận nhiệm vụ
@@ -107,7 +102,7 @@ public class PhuAI : MonoBehaviour
 
     [SerializeField]
     private string plateInteractionMessage =
-        "[Place the Egg Plate]";
+        "[Đặt đĩa trứng]";
 
     // =========================================================
     // AFTER COOKING
@@ -118,8 +113,8 @@ public class PhuAI : MonoBehaviour
     [SerializeField]
     private string[] afterCookingDialogue =
     {
-        "Oh, you finished it!",
-        "Thank you!"
+        "Món ăn xong rồi à?",
+        "Cảm ơn đầu bếp!"
     };
 
     // =========================================================
@@ -134,8 +129,8 @@ public class PhuAI : MonoBehaviour
         CookingTask,
         WaitingForPlate,
         AfterCookingDialogue,
+        WaitingForPlateDeletion,
         Returning,
-        WaitingToDespawn,
         Finished
     }
 
@@ -144,6 +139,11 @@ public class PhuAI : MonoBehaviour
     private int dialogueIndex = 0;
 
     private Camera playerCamera;
+
+    private void OnEnable()
+    {
+        DeleteEggPlate.PlateDestroyed += OnPlateDestroyed;
+    }
 
     // =========================================================
     // RUNTIME CONFIGURATION
@@ -349,7 +349,6 @@ public class PhuAI : MonoBehaviour
     {
         if (player == null &&
             currentState != State.Returning &&
-            currentState != State.WaitingToDespawn &&
             currentState != State.Finished)
         {
             return;
@@ -396,12 +395,6 @@ public class PhuAI : MonoBehaviour
             case State.Returning:
 
                 UpdateReturning();
-
-                break;
-
-            case State.WaitingToDespawn:
-
-                UpdateDespawnCountdown();
 
                 break;
 
@@ -857,6 +850,9 @@ public class PhuAI : MonoBehaviour
         Transform plateTransform =
             heldPlate.transform;
 
+        servedPlate = heldPlate;
+        servedPlateDestroyed = false;
+
         // Tách khỏi tay
         plateTransform.SetParent(null);
 
@@ -963,14 +959,36 @@ public class PhuAI : MonoBehaviour
         HidePlateText();
         HideCookingTaskText();
 
-        currentState =
-            State.Returning;
+        if (servedPlateDestroyed)
+        {
+            StartReturning();
+            return;
+        }
+
+        currentState = State.WaitingForPlateDeletion;
 
         Debug.Log(
-            "Phú đã nói chuyện xong và bắt đầu quay về điểm spawn."
+            "PhuAI: Hội thoại đã xong, NPC đang chờ xác nhận " +
+            "đĩa trứng được destroy trước khi rời đi."
+        );
+    }
+
+    private void OnPlateDestroyed(PickupItem destroyedPlate)
+    {
+        if (destroyedPlate == null || destroyedPlate != servedPlate)
+            return;
+
+        servedPlateDestroyed = true;
+
+        Debug.Log(
+            "PhuAI: Đã nhận xác nhận destroy đĩa trứng.",
+            this
         );
 
-        StartReturning();
+        if (currentState == State.WaitingForPlateDeletion)
+        {
+            StartReturning();
+        }
     }
 
     // =========================================================
@@ -979,6 +997,8 @@ public class PhuAI : MonoBehaviour
 
     private void StartReturning()
     {
+        currentState = State.Returning;
+
         returnPosition =
             hasRuntimeReturnPosition
                 ? runtimeReturnPosition
@@ -990,10 +1010,10 @@ public class PhuAI : MonoBehaviour
             !agent.isOnNavMesh)
         {
             Debug.LogWarning(
-                "PhuAI: NPC không ở trên NavMesh, bắt đầu đếm thời gian despawn tại chỗ."
+                "PhuAI: NPC không ở trên NavMesh nên được despawn để tránh kẹt luồng."
             );
 
-            BeginDespawnCountdown();
+            DespawnImmediately();
             return;
         }
 
@@ -1004,10 +1024,10 @@ public class PhuAI : MonoBehaviour
         if (!agent.SetDestination(returnPosition))
         {
             Debug.LogWarning(
-                "PhuAI: Không thể tạo đường về điểm spawn, bắt đầu đếm thời gian despawn tại chỗ."
+                "PhuAI: Không thể tạo đường về điểm spawn nên được despawn để tránh kẹt luồng."
             );
 
-            BeginDespawnCountdown();
+            DespawnImmediately();
             return;
         }
 
@@ -1023,7 +1043,7 @@ public class PhuAI : MonoBehaviour
         if (agent == null ||
             !agent.isOnNavMesh)
         {
-            BeginDespawnCountdown();
+            DespawnImmediately();
             return;
         }
 
@@ -1037,7 +1057,7 @@ public class PhuAI : MonoBehaviour
                 "PhuAI: Đường về điểm spawn không hợp lệ."
             );
 
-            BeginDespawnCountdown();
+            DespawnImmediately();
             return;
         }
 
@@ -1050,65 +1070,19 @@ public class PhuAI : MonoBehaviour
         if (agent.remainingDistance <=
             stopDistance)
         {
-            BeginDespawnCountdown();
+            DespawnImmediately();
         }
     }
 
-    private void BeginDespawnCountdown()
+    private void DespawnImmediately()
     {
-        if (currentState ==
-            State.WaitingToDespawn)
-        {
-            return;
-        }
-
-        if (agent != null &&
-            agent.isOnNavMesh)
-        {
-            agent.isStopped = true;
-        }
-
-        float minimumDelay =
-            Mathf.Min(
-                minimumDespawnDelay,
-                maximumDespawnDelay
-            );
-
-        float maximumDelay =
-            Mathf.Max(
-                minimumDespawnDelay,
-                maximumDespawnDelay
-            );
-
-        float delay =
-            Random.Range(
-                minimumDelay,
-                maximumDelay
-            );
-
-        despawnAtTime =
-            Time.time + delay;
-
-        currentState =
-            State.WaitingToDespawn;
-
-        Debug.Log(
-            "PhuAI: Đã về điểm spawn. NPC sẽ despawn sau " +
-            delay.ToString("0.0") +
-            " giây."
-        );
-    }
-
-    private void UpdateDespawnCountdown()
-    {
-        if (Time.time < despawnAtTime)
+        if (currentState == State.Finished)
             return;
 
-        currentState =
-            State.Finished;
+        currentState = State.Finished;
 
         Debug.Log(
-            "PhuAI: Despawn NPC sau khi hoàn thành đơn hàng."
+            "PhuAI: NPC đã về khu spawn và despawn ngay."
         );
 
         Destroy(gameObject);
@@ -1126,7 +1100,7 @@ public class PhuAI : MonoBehaviour
         talkTextOwner = this;
 
         talkInteractionText.text =
-            "[Click - Talk]";
+            "[Nhấp chuột - Nói chuyện]";
 
         talkInteractionText.gameObject.SetActive(true);
     }
@@ -1211,6 +1185,8 @@ public class PhuAI : MonoBehaviour
 
     private void OnDisable()
     {
+        DeleteEggPlate.PlateDestroyed -= OnPlateDestroyed;
+
         if (talkTextOwner == this)
         {
             if (talkInteractionText != null)
