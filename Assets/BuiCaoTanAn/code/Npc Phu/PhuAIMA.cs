@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(NavMeshAgent))]
@@ -14,26 +15,34 @@ public class PhuAIMA : MonoBehaviour
     private static PhuAIMA talkTextOwner;
     private static PhuAIMA plateTextOwner;
 
+
     // =========================================================
     // REFERENCES
     // =========================================================
 
     [Header("References")]
-    [SerializeField] private Transform player;
+
+    [SerializeField]
+    private Transform player;
 
     [Tooltip("PlayerHand của Player.")]
     public PlayerHand playerHand;
 
-    [SerializeField] private Transform targetPoint;
+    [SerializeField]
+    private Transform targetPoint;
+
 
     // =========================================================
     // MOVEMENT
     // =========================================================
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 3.5f;
 
-    [SerializeField] private float arriveDistance = 0.3f;
+    [SerializeField]
+    private float moveSpeed = 3.5f;
+
+    [SerializeField]
+    private float arriveDistance = 0.3f;
 
     private NavMeshAgent agent;
 
@@ -41,6 +50,7 @@ public class PhuAIMA : MonoBehaviour
 
     private Vector3 runtimeTargetPosition;
     private bool hasRuntimeTargetPosition = false;
+
 
     // =========================================================
     // FADE AND DESPAWN
@@ -50,14 +60,17 @@ public class PhuAIMA : MonoBehaviour
 
     [Tooltip("Thời gian NPC mờ dần.")]
     [Min(0.05f)]
-    [SerializeField] private float fadeDuration = 1.5f;
+    [SerializeField]
+    private float fadeDuration = 1.5f;
 
     [Tooltip("Thời gian chờ trước khi bắt đầu mờ.")]
     [Min(0f)]
-    [SerializeField] private float fadeDelay = 0f;
+    [SerializeField]
+    private float fadeDelay = 0f;
 
     [Tooltip("Sau khi mờ xong thì xóa NPC.")]
-    [SerializeField] private bool destroyAfterFade = true;
+    [SerializeField]
+    private bool destroyAfterFade = true;
 
     private float fadeStartTime;
 
@@ -67,18 +80,27 @@ public class PhuAIMA : MonoBehaviour
 
     private Color[] originalColors;
 
+    // ĐÃ SỬA:
+    // Material KHÔNG chuyển Transparent lúc NPC spawn.
+    // Chỉ chuyển Transparent khi StartFadeAndDespawn().
+
+
     // =========================================================
     // TALK
     // =========================================================
 
     [Header("Talk")]
 
-    [SerializeField] private GameObject talkHitbox;
+    [SerializeField]
+    private GameObject talkHitbox;
 
-    [SerializeField] private float talkDistance = 3f;
+    [SerializeField]
+    private float talkDistance = 3f;
 
     [Tooltip("Text hiện [Click - Talk].")]
-    [SerializeField] private TMP_Text talkInteractionText;
+    [SerializeField]
+    private TMP_Text talkInteractionText;
+
 
     // =========================================================
     // DIALOGUE UI
@@ -86,9 +108,12 @@ public class PhuAIMA : MonoBehaviour
 
     [Header("Dialogue UI")]
 
-    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField]
+    private GameObject dialoguePanel;
 
-    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField]
+    private TMP_Text dialogueText;
+
 
     // =========================================================
     // BEFORE COOKING
@@ -104,6 +129,7 @@ public class PhuAIMA : MonoBehaviour
         "Could you make me a plate of fried eggs?"
     };
 
+
     // =========================================================
     // COOKING TASK
     // =========================================================
@@ -117,6 +143,7 @@ public class PhuAIMA : MonoBehaviour
     [Tooltip("Text nhiệm vụ.")]
     [SerializeField]
     private TMP_Text cookingTaskText;
+
 
     // =========================================================
     // PLATE DROP
@@ -138,6 +165,7 @@ public class PhuAIMA : MonoBehaviour
     private string plateInteractionMessage =
         "[Place the Egg Plate]";
 
+
     // =========================================================
     // AFTER COOKING
     // =========================================================
@@ -151,6 +179,7 @@ public class PhuAIMA : MonoBehaviour
         "Oh, you finished it!",
         "Thank you!"
     };
+
 
     // =========================================================
     // STATE
@@ -174,6 +203,7 @@ public class PhuAIMA : MonoBehaviour
 
     private Camera playerCamera;
 
+
     // =========================================================
     // RUNTIME CONFIGURATION
     // =========================================================
@@ -192,66 +222,27 @@ public class PhuAIMA : MonoBehaviour
         Transform runtimePlatePlacePoint,
         TMP_Text runtimePlateInteractionText)
     {
-        // -----------------------------------------------------
-        // CHỈ GHI ĐÈ KHI GIÁ TRỊ TRUYỀN VÀO KHÁC NULL
-        // Tránh trường hợp spawner truyền null làm mất giá trị
-        // đã gán sẵn trong Prefab (Inspector).
-        // -----------------------------------------------------
+        player = runtimePlayer;
 
-        if (runtimePlayer != null)
-        {
-            player = runtimePlayer;
-        }
+        playerHand = runtimePlayerHand;
 
-        if (runtimePlayerHand != null)
-        {
-            playerHand = runtimePlayerHand;
-        }
+        targetPoint = runtimeTargetPoint;
 
-        if (runtimeTargetPoint != null)
-        {
-            targetPoint = runtimeTargetPoint;
-        }
+        runtimeTargetPosition = sampledTargetPosition;
 
-        if (sampledTargetPosition != Vector3.zero)
-        {
-            runtimeTargetPosition = sampledTargetPosition;
+        hasRuntimeTargetPosition = true;
 
-            hasRuntimeTargetPosition = true;
-        }
+        talkInteractionText = runtimeTalkText;
 
-        if (runtimeTalkText != null)
-        {
-            talkInteractionText = runtimeTalkText;
-        }
+        dialoguePanel = runtimeDialoguePanel;
 
-        if (runtimeDialoguePanel != null)
-        {
-            dialoguePanel = runtimeDialoguePanel;
-        }
+        dialogueText = runtimeDialogueText;
 
-        if (runtimeDialogueText != null)
-        {
-            dialogueText = runtimeDialogueText;
-        }
+        cookingTaskText = runtimeCookingTaskText;
 
-        if (runtimeCookingTaskText != null)
-        {
-            cookingTaskText = runtimeCookingTaskText;
-        }
+        platePlacePoint = runtimePlatePlacePoint;
 
-        if (runtimePlatePlacePoint != null)
-        {
-            platePlacePoint = runtimePlatePlacePoint;
-        }
-
-        if (runtimePlateInteractionText != null)
-        {
-            plateInteractionText = runtimePlateInteractionText;
-        }
-
-        CursorFollowInteractionText.Ensure(talkInteractionText);
-        CursorFollowInteractionText.Ensure(plateInteractionText);
+        plateInteractionText = runtimePlateInteractionText;
 
         AssignPrefabLocalReferences();
 
@@ -261,6 +252,7 @@ public class PhuAIMA : MonoBehaviour
             this
         );
     }
+
 
     // =========================================================
     // ASSIGN LOCAL REFERENCES
@@ -279,6 +271,7 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // HITBOX
     // =========================================================
@@ -295,6 +288,7 @@ public class PhuAIMA : MonoBehaviour
 
         hitbox.SetActive(active);
     }
+
 
     // =========================================================
     // START
@@ -317,6 +311,7 @@ public class PhuAIMA : MonoBehaviour
         }
 
         playerCamera = Camera.main;
+
 
         // -----------------------------------------------------
         // PLAYER
@@ -343,11 +338,18 @@ public class PhuAIMA : MonoBehaviour
             }
         }
 
+
         // -----------------------------------------------------
         // FADE MATERIAL
         // -----------------------------------------------------
+        //
+        // QUAN TRỌNG:
+        // Chỉ lấy material và màu gốc.
+        // KHÔNG chuyển material sang Transparent ở đây.
+        //
 
         PrepareFadeMaterials();
+
 
         // -----------------------------------------------------
         // TẮT TEXT BAN ĐẦU
@@ -359,6 +361,7 @@ public class PhuAIMA : MonoBehaviour
 
         HidePlateText();
 
+
         // -----------------------------------------------------
         // TẮT DIALOGUE
         // -----------------------------------------------------
@@ -367,6 +370,7 @@ public class PhuAIMA : MonoBehaviour
         {
             dialoguePanel.SetActive(false);
         }
+
 
         // -----------------------------------------------------
         // TẮT HITBOX
@@ -382,12 +386,14 @@ public class PhuAIMA : MonoBehaviour
             false
         );
 
+
         // -----------------------------------------------------
         // BẮT ĐẦU ĐI
         // -----------------------------------------------------
 
         StartMovingToTarget();
     }
+
 
     // =========================================================
     // START MOVING
@@ -401,6 +407,7 @@ public class PhuAIMA : MonoBehaviour
                 "PhuAIMA: Agent chưa sẵn sàng lên NavMesh ở frame này.",
                 this
             );
+
             return;
         }
 
@@ -460,6 +467,7 @@ public class PhuAIMA : MonoBehaviour
         );
     }
 
+
     // =========================================================
     // UPDATE
     // =========================================================
@@ -516,6 +524,7 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // SAFE NAVMESH CHECK
     // =========================================================
@@ -523,9 +532,6 @@ public class PhuAIMA : MonoBehaviour
     private bool IsAgentReady()
     {
         if (agent == null)
-            return false;
-
-        if (!agent.enabled)
             return false;
 
         if (!agent.isActiveAndEnabled)
@@ -539,6 +545,7 @@ public class PhuAIMA : MonoBehaviour
 
         return true;
     }
+
 
     // =========================================================
     // MOVEMENT
@@ -585,8 +592,7 @@ public class PhuAIMA : MonoBehaviour
                 agent.stoppingDistance
             ) + 0.1f;
 
-        bool reached =
-            false;
+        bool reached = false;
 
         if (agent.hasPath)
         {
@@ -607,6 +613,7 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // ARRIVE
     // =========================================================
@@ -623,6 +630,8 @@ public class PhuAIMA : MonoBehaviour
             agent.isStopped = true;
 
             agent.ResetPath();
+
+            agent.velocity = Vector3.zero;
         }
 
         currentState =
@@ -639,6 +648,7 @@ public class PhuAIMA : MonoBehaviour
         );
     }
 
+
     // =========================================================
     // WAITING FOR TALK
     // =========================================================
@@ -646,10 +656,7 @@ public class PhuAIMA : MonoBehaviour
     private void UpdateWaitingForTalk()
     {
         if (player == null)
-        {
-            Debug.LogWarning("PhuAIMA DEBUG: player đang NULL.", this);
             return;
-        }
 
         GameObject target =
             talkHitbox != null
@@ -664,15 +671,6 @@ public class PhuAIMA : MonoBehaviour
                 player.position,
                 transform.position
             );
-
-        Debug.Log(
-            "PhuAIMA DEBUG: hovering=" + hovering +
-            " distance=" + distance +
-            " talkDistance=" + talkDistance +
-            " cursorLocked=" + (Cursor.lockState == CursorLockMode.Locked) +
-            " target=" + target.name,
-            this
-        );
 
         if (hovering &&
             distance <= talkDistance)
@@ -692,6 +690,7 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // START BEFORE COOKING
     // =========================================================
@@ -703,14 +702,6 @@ public class PhuAIMA : MonoBehaviour
 
         dialogueIndex = 0;
 
-        // Countdown của màn Night chỉ bắt đầu khi người chơi
-        // thực sự mở hội thoại với NPC ma.
-        if (NPCMissionTimer.Instance != null)
-        {
-            NPCMissionTimer.Instance
-                .BeginCurrentMissionCountdown(this);
-        }
-
         HideTalkText();
 
         SetHitboxActive(
@@ -720,6 +711,7 @@ public class PhuAIMA : MonoBehaviour
 
         ShowCurrentDialogue();
     }
+
 
     // =========================================================
     // SHOW CURRENT DIALOGUE
@@ -772,6 +764,7 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // DIALOGUE CLICK
     // =========================================================
@@ -788,6 +781,7 @@ public class PhuAIMA : MonoBehaviour
         }
 
         dialogueIndex++;
+
 
         // -----------------------------------------------------
         // BEFORE
@@ -807,6 +801,7 @@ public class PhuAIMA : MonoBehaviour
                 ShowCurrentDialogue();
             }
         }
+
 
         // -----------------------------------------------------
         // AFTER
@@ -828,6 +823,7 @@ public class PhuAIMA : MonoBehaviour
             }
         }
     }
+
 
     // =========================================================
     // START COOKING TASK
@@ -861,6 +857,7 @@ public class PhuAIMA : MonoBehaviour
         );
     }
 
+
     // =========================================================
     // COOKING TASK
     // =========================================================
@@ -877,6 +874,7 @@ public class PhuAIMA : MonoBehaviour
         currentState =
             State.WaitingForPlate;
     }
+
 
     // =========================================================
     // WAITING FOR PLATE
@@ -919,6 +917,7 @@ public class PhuAIMA : MonoBehaviour
             HidePlateText();
         }
     }
+
 
     // =========================================================
     // TRY PLACE PLATE
@@ -971,6 +970,7 @@ public class PhuAIMA : MonoBehaviour
         );
     }
 
+
     // =========================================================
     // CHECK EGG
     // =========================================================
@@ -991,6 +991,7 @@ public class PhuAIMA : MonoBehaviour
 
         return plateEgg.HasEgg();
     }
+
 
     // =========================================================
     // PLACE PLATE
@@ -1073,22 +1074,19 @@ public class PhuAIMA : MonoBehaviour
 
         HideCookingTaskText();
 
-        // -----------------------------------------------------
-        // BÁO CHO NPCMissionTimer BIẾT YÊU CẦU ĐÃ HOÀN THÀNH
-        // Dừng đồng hồ đếm ngược ngay lúc này, thay vì chờ
-        // NPC nói chuyện xong / fade xong.
-        // -----------------------------------------------------
 
-        if (NPCMissionTimer.Instance != null)
-        {
-            NPCMissionTimer.Instance.CompleteCurrentMission();
-        }
+        // -----------------------------------------------------
+        // NPC ĐỨNG YÊN
+        // -----------------------------------------------------
 
         if (IsAgentReady())
         {
             agent.isStopped = true;
 
             agent.ResetPath();
+
+            agent.velocity =
+                Vector3.zero;
         }
 
         Debug.Log(
@@ -1099,6 +1097,7 @@ public class PhuAIMA : MonoBehaviour
 
         StartAfterCookingDialogue();
     }
+
 
     // =========================================================
     // AFTER COOKING
@@ -1114,6 +1113,7 @@ public class PhuAIMA : MonoBehaviour
         ShowCurrentDialogue();
     }
 
+
     // =========================================================
     // FADE START
     // =========================================================
@@ -1128,6 +1128,11 @@ public class PhuAIMA : MonoBehaviour
             return;
         }
 
+
+        // -----------------------------------------------------
+        // TẮT UI
+        // -----------------------------------------------------
+
         if (dialoguePanel != null)
         {
             dialoguePanel.SetActive(false);
@@ -1139,6 +1144,11 @@ public class PhuAIMA : MonoBehaviour
 
         HideCookingTaskText();
 
+
+        // -----------------------------------------------------
+        // TẮT HITBOX
+        // -----------------------------------------------------
+
         SetHitboxActive(
             talkHitbox,
             false
@@ -1148,6 +1158,11 @@ public class PhuAIMA : MonoBehaviour
             plateDropHitbox,
             false
         );
+
+
+        // -----------------------------------------------------
+        // DỪNG NPC HOÀN TOÀN
+        // -----------------------------------------------------
 
         if (IsAgentReady())
         {
@@ -1159,18 +1174,26 @@ public class PhuAIMA : MonoBehaviour
                 Vector3.zero;
         }
 
-        // -----------------------------------------------------
-        // TẮT HẲN AGENT
-        // Tránh Unity tự đọc/ghi isStopped nội bộ khi agent
-        // không còn nằm trên NavMesh (gây lỗi
-        // "IsStopped can only be called on an active agent
-        // that has been placed on a NavMesh").
-        // -----------------------------------------------------
 
-        if (agent != null)
-        {
-            agent.enabled = false;
-        }
+        // =====================================================
+        // QUAN TRỌNG NHẤT
+        // =====================================================
+        //
+        // CHỈ BÂY GIỜ mới chuyển material sang Transparent.
+        //
+        // Khi NPC spawn:
+        // Opaque bình thường.
+        //
+        // Khi NPC bắt đầu fade:
+        // Opaque -> Transparent.
+        //
+
+        PrepareMaterialsForFade();
+
+
+        // Đảm bảo alpha bắt đầu từ 100%.
+        SetNPCAlpha(1f);
+
 
         currentState =
             State.Fading;
@@ -1183,6 +1206,7 @@ public class PhuAIMA : MonoBehaviour
             this
         );
     }
+
 
     // =========================================================
     // FADE UPDATE
@@ -1226,9 +1250,17 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
     // PREPARE MATERIALS
     // =========================================================
+    //
+    // CHỈ LẤY MATERIAL VÀ MÀU GỐC.
+    //
+    // KHÔNG đổi shader / surface / blend ở đây.
+    //
+    // Vì vậy NPC mới spawn sẽ không bị trong suốt.
+    //
 
     private void PrepareFadeMaterials()
     {
@@ -1248,13 +1280,14 @@ public class PhuAIMA : MonoBehaviour
             return;
         }
 
-        System.Collections.Generic.List<Material>
+        List<Material>
             materialList =
-            new System.Collections.Generic.List<Material>();
+            new List<Material>();
 
-        System.Collections.Generic.List<Color>
+        List<Color>
             colorList =
-            new System.Collections.Generic.List<Color>();
+            new List<Color>();
+
 
         foreach (
             Renderer renderer
@@ -1263,8 +1296,10 @@ public class PhuAIMA : MonoBehaviour
             if (renderer == null)
                 continue;
 
+
             Material[] materials =
                 renderer.materials;
+
 
             foreach (
                 Material material
@@ -1273,24 +1308,26 @@ public class PhuAIMA : MonoBehaviour
                 if (material == null)
                     continue;
 
+
                 materialList.Add(
                     material
                 );
+
 
                 Color color =
                     GetMaterialColor(
                         material
                     );
 
+
                 colorList.Add(
                     color
                 );
 
-                SetupMaterialForFade(
-                    material
-                );
+                // KHÔNG GỌI SetupMaterialForFade() Ở ĐÂY.
             }
         }
+
 
         npcMaterials =
             materialList.ToArray();
@@ -1298,6 +1335,37 @@ public class PhuAIMA : MonoBehaviour
         originalColors =
             colorList.ToArray();
     }
+
+
+    // =========================================================
+    // PREPARE MATERIALS FOR FADE
+    // =========================================================
+    //
+    // Hàm này chỉ được gọi lúc NPC thực sự bắt đầu fade.
+    //
+
+    private void PrepareMaterialsForFade()
+    {
+        if (npcMaterials == null ||
+            npcMaterials.Length == 0)
+        {
+            return;
+        }
+
+
+        foreach (
+            Material material
+            in npcMaterials)
+        {
+            if (material == null)
+                continue;
+
+            SetupMaterialForFade(
+                material
+            );
+        }
+    }
+
 
     // =========================================================
     // GET MATERIAL COLOR
@@ -1328,6 +1396,7 @@ public class PhuAIMA : MonoBehaviour
         return Color.white;
     }
 
+
     // =========================================================
     // SET MATERIAL COLOR
     // =========================================================
@@ -1339,6 +1408,7 @@ public class PhuAIMA : MonoBehaviour
         if (material == null)
             return;
 
+
         if (material.HasProperty("_BaseColor"))
         {
             material.SetColor(
@@ -1346,6 +1416,7 @@ public class PhuAIMA : MonoBehaviour
                 color
             );
         }
+
 
         if (material.HasProperty("_Color"))
         {
@@ -1355,6 +1426,7 @@ public class PhuAIMA : MonoBehaviour
             );
         }
     }
+
 
     // =========================================================
     // SETUP TRANSPARENT
@@ -1366,51 +1438,12 @@ public class PhuAIMA : MonoBehaviour
         if (material == null)
             return;
 
-        // URP/Lit exposes both _Surface and the legacy-looking _Mode property.
-        // Check _Surface first so the ghost keeps its texture when fading.
-        if (material.HasProperty("_Surface"))
-        {
-            material.SetFloat(
-                "_Surface",
-                1f
-            );
 
-            material.SetFloat(
-                "_Blend",
-                0f
-            );
+        // =====================================================
+        // BUILT-IN / STANDARD
+        // =====================================================
 
-            material.SetInt(
-                "_SrcBlend",
-                (int)
-                    UnityEngine.Rendering.BlendMode.SrcAlpha
-            );
-
-            material.SetInt(
-                "_DstBlend",
-                (int)
-                    UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
-            );
-
-            material.SetInt(
-                "_ZWrite",
-                0
-            );
-
-            material.SetOverrideTag(
-                "RenderType",
-                "Transparent"
-            );
-            material.DisableKeyword(
-                "_ALPHATEST_ON"
-            );
-            material.EnableKeyword(
-                "_SURFACE_TYPE_TRANSPARENT"
-            );
-
-            material.renderQueue = 3000;
-        }
-        else if (material.HasProperty("_Mode"))
+        if (material.HasProperty("_Mode"))
         {
             material.SetFloat(
                 "_Mode",
@@ -1446,15 +1479,64 @@ public class PhuAIMA : MonoBehaviour
                 "_ALPHAPREMULTIPLY_ON"
             );
 
-            material.renderQueue = 3000;
+            material.renderQueue =
+                3000;
+        }
+
+
+        // =====================================================
+        // URP
+        // =====================================================
+
+        else if (
+            material.HasProperty("_Surface"))
+        {
+            material.SetFloat(
+                "_Surface",
+                1f
+            );
+
+            material.SetFloat(
+                "_Blend",
+                0f
+            );
+
+            material.SetInt(
+                "_SrcBlend",
+                (int)
+                    UnityEngine.Rendering.BlendMode.SrcAlpha
+            );
+
+            material.SetInt(
+                "_DstBlend",
+                (int)
+                    UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
+            );
+
+            material.SetInt(
+                "_ZWrite",
+                0
+            );
+
+
+            // Đúng keyword Transparent của URP.
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT"
+            );
+
+
+            material.renderQueue =
+                3000;
         }
     }
+
 
     // =========================================================
     // SET NPC ALPHA
     // =========================================================
 
-    private void SetNPCAlpha(float alpha)
+    private void SetNPCAlpha(
+        float alpha)
     {
         if (npcMaterials == null ||
             originalColors == null)
@@ -1462,13 +1544,19 @@ public class PhuAIMA : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < npcMaterials.Length; i++)
+
+        for (
+            int i = 0;
+            i < npcMaterials.Length;
+            i++)
         {
             if (npcMaterials[i] == null)
                 continue;
 
+
             Color baseColor =
                 originalColors[i];
+
 
             Color newColor =
                 new Color(
@@ -1478,6 +1566,7 @@ public class PhuAIMA : MonoBehaviour
                     baseColor.a * alpha
                 );
 
+
             SetMaterialColor(
                 npcMaterials[i],
                 newColor
@@ -1485,57 +1574,64 @@ public class PhuAIMA : MonoBehaviour
         }
     }
 
+
     // =========================================================
-    // UI HELPERS (TEXT & MOUSE)
+    // UI HELPERS - MOUSE
     // =========================================================
 
-    private bool IsMouseOverObject(GameObject target)
+    private bool IsMouseOverObject(
+        GameObject target)
     {
         if (target == null)
             return false;
 
+
         if (playerCamera == null)
         {
-            playerCamera = Camera.main;
+            playerCamera =
+                Camera.main;
 
             if (playerCamera == null)
                 return false;
         }
 
+
         if (Mouse.current == null)
             return false;
 
-        // -----------------------------------------------------
-        // FIX: khi chuột bị khóa giữa màn hình (crosshair FPS),
-        // Mouse.current.position không đổi theo hướng nhìn.
-        // Phải bắn ray từ TÂM MÀN HÌNH trong trường hợp đó,
-        // giống hệt cách PhuAI đang làm.
-        // -----------------------------------------------------
-
-        Vector2 screenPoint =
-            Cursor.lockState == CursorLockMode.Locked
-                ? new Vector2(
-                    Screen.width * 0.5f,
-                    Screen.height * 0.5f
-                )
-                : Mouse.current.position.ReadValue();
 
         Ray ray =
-            playerCamera.ScreenPointToRay(screenPoint);
+            playerCamera.ScreenPointToRay(
+                Mouse.current.position.ReadValue()
+            );
+
 
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 100f))
+
+        if (Physics.Raycast(
+                ray,
+                out hit,
+                talkDistance + 2f))
         {
-            if (hit.collider.gameObject == target ||
-                hit.collider.transform.IsChildOf(target.transform))
+            if (
+                hit.collider.gameObject == target ||
+                hit.collider.transform.IsChildOf(
+                    target.transform
+                ))
             {
                 return true;
             }
         }
 
+
         return false;
     }
+
+
+    // =========================================================
+    // TALK TEXT
+    // =========================================================
 
     private void ShowTalkText()
     {
@@ -1549,21 +1645,31 @@ public class PhuAIMA : MonoBehaviour
                 talkInteractionText.text =
                     "[Click - Talk]";
 
-                talkInteractionText.gameObject.SetActive(true);
+                talkInteractionText.gameObject.SetActive(
+                    true
+                );
             }
         }
     }
+
 
     private void HideTalkText()
     {
         if (talkInteractionText != null &&
             talkTextOwner == this)
         {
-            talkInteractionText.gameObject.SetActive(false);
+            talkInteractionText.gameObject.SetActive(
+                false
+            );
 
             talkTextOwner = null;
         }
     }
+
+
+    // =========================================================
+    // COOKING TEXT
+    // =========================================================
 
     private void ShowCookingTaskText()
     {
@@ -1572,17 +1678,27 @@ public class PhuAIMA : MonoBehaviour
             cookingTaskText.text =
                 cookingText;
 
-            cookingTaskText.gameObject.SetActive(true);
+            cookingTaskText.gameObject.SetActive(
+                true
+            );
         }
     }
+
 
     private void HideCookingTaskText()
     {
         if (cookingTaskText != null)
         {
-            cookingTaskText.gameObject.SetActive(false);
+            cookingTaskText.gameObject.SetActive(
+                false
+            );
         }
     }
+
+
+    // =========================================================
+    // PLATE TEXT
+    // =========================================================
 
     private void ShowPlateText()
     {
@@ -1596,18 +1712,41 @@ public class PhuAIMA : MonoBehaviour
                 plateInteractionText.text =
                     plateInteractionMessage;
 
-                plateInteractionText.gameObject.SetActive(true);
+                plateInteractionText.gameObject.SetActive(
+                    true
+                );
             }
         }
     }
+
 
     private void HidePlateText()
     {
         if (plateInteractionText != null &&
             plateTextOwner == this)
         {
-            plateInteractionText.gameObject.SetActive(false);
+            plateInteractionText.gameObject.SetActive(
+                false
+            );
 
+            plateTextOwner = null;
+        }
+    }
+
+
+    // =========================================================
+    // ON DESTROY
+    // =========================================================
+
+    private void OnDestroy()
+    {
+        if (talkTextOwner == this)
+        {
+            talkTextOwner = null;
+        }
+
+        if (plateTextOwner == this)
+        {
             plateTextOwner = null;
         }
     }
