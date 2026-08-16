@@ -250,6 +250,9 @@ public class PhuAIMA : MonoBehaviour
             plateInteractionText = runtimePlateInteractionText;
         }
 
+        CursorFollowInteractionText.Ensure(talkInteractionText);
+        CursorFollowInteractionText.Ensure(plateInteractionText);
+
         AssignPrefabLocalReferences();
 
         Debug.Log(
@@ -699,6 +702,14 @@ public class PhuAIMA : MonoBehaviour
             State.BeforeCookingDialogue;
 
         dialogueIndex = 0;
+
+        // Countdown của màn Night chỉ bắt đầu khi người chơi
+        // thực sự mở hội thoại với NPC ma.
+        if (NPCMissionTimer.Instance != null)
+        {
+            NPCMissionTimer.Instance
+                .BeginCurrentMissionCountdown(this);
+        }
 
         HideTalkText();
 
@@ -1355,7 +1366,51 @@ public class PhuAIMA : MonoBehaviour
         if (material == null)
             return;
 
-        if (material.HasProperty("_Mode"))
+        // URP/Lit exposes both _Surface and the legacy-looking _Mode property.
+        // Check _Surface first so the ghost keeps its texture when fading.
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat(
+                "_Surface",
+                1f
+            );
+
+            material.SetFloat(
+                "_Blend",
+                0f
+            );
+
+            material.SetInt(
+                "_SrcBlend",
+                (int)
+                    UnityEngine.Rendering.BlendMode.SrcAlpha
+            );
+
+            material.SetInt(
+                "_DstBlend",
+                (int)
+                    UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
+            );
+
+            material.SetInt(
+                "_ZWrite",
+                0
+            );
+
+            material.SetOverrideTag(
+                "RenderType",
+                "Transparent"
+            );
+            material.DisableKeyword(
+                "_ALPHATEST_ON"
+            );
+            material.EnableKeyword(
+                "_SURFACE_TYPE_TRANSPARENT"
+            );
+
+            material.renderQueue = 3000;
+        }
+        else if (material.HasProperty("_Mode"))
         {
             material.SetFloat(
                 "_Mode",
@@ -1389,44 +1444,6 @@ public class PhuAIMA : MonoBehaviour
 
             material.DisableKeyword(
                 "_ALPHAPREMULTIPLY_ON"
-            );
-
-            material.renderQueue = 3000;
-        }
-        else if (material.HasProperty("_Surface"))
-        {
-            material.SetFloat(
-                "_Surface",
-                1f
-            );
-
-            material.SetFloat(
-                "_Blend",
-                0f
-            );
-
-            material.SetInt(
-                "_SrcBlend",
-                (int)
-                    UnityEngine.Rendering.BlendMode.SrcAlpha
-            );
-
-            material.SetInt(
-                "_DstBlend",
-                (int)
-                    UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha
-            );
-
-            material.SetInt(
-                "_ZWrite",
-                0
-            );
-
-            material.DisableKeyword(
-                "_SURFACE_TYPE_TRANSPARENT"
-            );
-            material.EnableKeyword(
-                "_SURFACE_TYPE_TRANSPARENT"
             );
 
             material.renderQueue = 3000;

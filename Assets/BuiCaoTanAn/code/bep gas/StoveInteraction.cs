@@ -88,6 +88,8 @@ public class StoveInteraction : MonoBehaviour
 
     private void Start()
     {
+        CursorFollowInteractionText.Ensure(interactionText);
+
         ResetAllObjects();
 
         HideText();

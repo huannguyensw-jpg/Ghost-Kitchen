@@ -30,6 +30,14 @@ public class PlayerHand : MonoBehaviour
     private readonly Dictionary<Transform, int> heldItemLayers =
         new Dictionary<Transform, int>();
 
+    private void Awake()
+    {
+        // Model tay được đặt làm con của object PlayerHand.
+        // Đồng bộ toàn bộ model sang layer góc nhìn thứ nhất để tay
+        // không bị camera thế giới hoặc vật thể trong cảnh che sai.
+        SetLayerRecursively(transform, firstPersonLayer);
+    }
+
     private void Update()
     {
         if (Keyboard.current != null &&
@@ -323,6 +331,24 @@ public class PlayerHand : MonoBehaviour
         }
 
         heldItemLayers.Clear();
+    }
+
+    private static void SetLayerRecursively(
+        Transform root,
+        int layer)
+    {
+        if (root == null)
+            return;
+
+        root.gameObject.layer = layer;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            SetLayerRecursively(
+                root.GetChild(i),
+                layer
+            );
+        }
     }
 
 

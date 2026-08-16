@@ -1,0 +1,141 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7200000000000000000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      propertyPath: m_Name
+      value: KhaBanh
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7200000000000000002}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7200000000000000003}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7200000000000000004}
+  m_SourcePrefab: {fileID: 100100000, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+--- !u!1 &8010461227947736401 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 4711641420a93c54c86efc8823a4a2ec, type: 3}
+  m_PrefabInstance: {fileID: 7200000000000000000}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7200000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8010461227947736401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a801b4088981da44af1cb6965d93362, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhuAI
+  player: {fileID: 0}
+  playerHand: {fileID: 0}
+  targetPoint: {fileID: 0}
+  moveSpeed: 40
+  arriveDistance: 2
+  returnPoint: {fileID: 0}
+  talkHitbox: {fileID: 8010461227947736401}
+  talkDistance: 50
+  talkInteractionText: {fileID: 0}
+  dialoguePanel: {fileID: 0}
+  dialogueText: {fileID: 0}
+  beforeCookingDialogue:
+  - "Kh\xE1 B\u1EA3nh: Ch\xE0o \u0111\u1EA7u b\u1EBFp, h\xF4m nay qu\xE1n \u0111\xF4ng
+    kh\xE1ch kh\xF4ng?"
+  - "Kh\xE1 B\u1EA3nh: Cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn th\u1EADt
+    \u0111\u1EB9p m\u1EAFt nh\xE9."
+  - "Kh\xE1 B\u1EA3nh: T\xF4i \u0111\u1EE9ng ch\u1EDD \u1EDF \u0111\xE2y, l\xE0m
+    n\xF3ng gi\xF2n m\u1ED9t ch\xFAt l\xE0 chu\u1EA9n."
+  cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
+  cookingTaskText: {fileID: 0}
+  plateDropHitbox: {fileID: 8010461227947736401}
+  platePlacePoint: {fileID: 0}
+  plateInteractionText: {fileID: 0}
+  plateInteractionMessage: "[\u0110\u1EB7t \u0111\u0129a tr\u1EE9ng]"
+  afterCookingDialogue:
+  - "Kh\xE1 B\u1EA3nh: M\xF3n n\xE0y nh\xECn \u0111\u01B0\u1EE3c \u0111\u1EA5y, \u0111\xFAng
+    \xFD t\xF4i r\u1ED3i."
+  - "Kh\xE1 B\u1EA3nh: C\u1EA3m \u01A1n \u0111\u1EA7u b\u1EBFp, ph\u1EE5c v\u1EE5
+    nhanh g\u1ECDn l\u1EAFm."
+--- !u!195 &7200000000000000003
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8010461227947736401}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!65 &7200000000000000004
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8010461227947736401}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.024, y: 0.076, z: 0.026}
+  m_Center: {x: 0, y: 0.038, z: 0}

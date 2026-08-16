@@ -14,12 +14,6 @@ public class CustomerSpawner : MonoBehaviour
     [SerializeField]
     private Transform spawnPoint;
 
-    [SerializeField]
-    private float spawnInterval = 15f;
-
-    [SerializeField]
-    private bool spawnImmediately = true;
-
     [Tooltip(
         "Bật để giới hạn tổng số customer được tạo trong một lần chạy."
     )]
@@ -78,6 +72,7 @@ public class CustomerSpawner : MonoBehaviour
 
     private Coroutine spawnCoroutine;
     private int spawnedCount;
+    private GameObject currentCustomer;
     private readonly List<GameObject> shuffledCustomerPrefabs =
         new List<GameObject>();
     private GameObject lastSelectedPrefab;
@@ -98,23 +93,26 @@ public class CustomerSpawner : MonoBehaviour
 
     private IEnumerator SpawnLoop()
     {
-        if (spawnImmediately && CanSpawn())
-        {
-            SpawnCustomer();
-        }
-
         while (CanSpawn())
         {
-            yield return new WaitForSeconds(
-                Mathf.Max(0.1f, spawnInterval)
-            );
+            // Unity chỉ trả về null sau khi NPC cũ đã thực sự bị
+            // Destroy. Không cho phép hai khách cùng tồn tại.
+            if (currentCustomer != null)
+            {
+                yield return new WaitUntil(
+                    () => currentCustomer == null
+                );
+            }
 
             if (!CanSpawn())
             {
                 break;
             }
 
-            SpawnCustomer();
+            if (!SpawnCustomer())
+            {
+                break;
+            }
         }
 
         spawnCoroutine = null;
@@ -126,7 +124,7 @@ public class CustomerSpawner : MonoBehaviour
                spawnedCount < maximumSpawnCount;
     }
 
-    private void SpawnCustomer()
+    private bool SpawnCustomer()
     {
         if (customerPrefabs == null ||
             customerPrefabs.Length == 0)
@@ -135,7 +133,7 @@ public class CustomerSpawner : MonoBehaviour
                 "CustomerSpawner: No customer prefab assigned."
             );
 
-            return;
+            return false;
         }
 
         if (spawnPoint == null || stopPoint == null)
@@ -144,12 +142,12 @@ public class CustomerSpawner : MonoBehaviour
                 "CustomerSpawner: Spawn Point or Stop Point is missing."
             );
 
-            return;
+            return false;
         }
 
         if (!TryGetAllowedAreaMask(out int allowedAreaMask))
         {
-            return;
+            return false;
         }
 
         if (!TryGetNavMeshPosition(
@@ -161,7 +159,7 @@ public class CustomerSpawner : MonoBehaviour
                 "CustomerSpawner: Spawn Point is not near a NavMesh."
             );
 
-            return;
+            return false;
         }
 
         if (!TryGetNavMeshPosition(
@@ -173,7 +171,7 @@ public class CustomerSpawner : MonoBehaviour
                 "CustomerSpawner: Stop Point is not near a NavMesh."
             );
 
-            return;
+            return false;
         }
 
         GameObject selectedPrefab = GetNextCustomerPrefab();
@@ -184,7 +182,7 @@ public class CustomerSpawner : MonoBehaviour
                 "CustomerSpawner: No valid customer prefab assigned."
             );
 
-            return;
+            return false;
         }
 
         GameObject customer = Instantiate(
@@ -203,9 +201,10 @@ public class CustomerSpawner : MonoBehaviour
             );
 
             Destroy(customer);
-            return;
+            return false;
         }
 
+        currentCustomer = customer;
         spawnedCount++;
 
         // Customer chỉ có thể lập đường đi trên area Pathway.
@@ -233,7 +232,7 @@ public class CustomerSpawner : MonoBehaviour
 
             // PhuAI tự điều khiển hành trình, state tương tác,
             // quay về Spawn Point và despawn.
-            return;
+            return true;
         }
 
         StartCoroutine(
@@ -243,6 +242,8 @@ public class CustomerSpawner : MonoBehaviour
                 destination
             )
         );
+
+        return true;
     }
 
     private GameObject GetNextCustomerPrefab()

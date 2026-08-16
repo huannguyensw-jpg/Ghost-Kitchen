@@ -178,6 +178,9 @@ public class PhuAI : MonoBehaviour
         platePlacePoint = runtimePlatePlacePoint;
         plateInteractionText = runtimePlateInteractionText;
 
+        CursorFollowInteractionText.Ensure(talkInteractionText);
+        CursorFollowInteractionText.Ensure(plateInteractionText);
+
         AssignPrefabLocalReferences();
 
         Debug.Log(

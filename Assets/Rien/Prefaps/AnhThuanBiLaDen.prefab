@@ -101,26 +101,31 @@ MonoBehaviour:
   moveSpeed: 40
   arriveDistance: 2
   returnPoint: {fileID: 0}
-  minimumDespawnDelay: 5
-  maximumDespawnDelay: 10
   talkHitbox: {fileID: 6813798319486713023}
   talkDistance: 50
   talkInteractionText: {fileID: 0}
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - Xin chào!
-  - Hôm nay đầu bếp khỏe không?
-  - Cho tôi một đĩa trứng chiên nhé.
-  cookingText: '[Nấu một đĩa trứng chiên]'
+  - "Thu\u1EADn: C\u1EADu l\xE0 nh\xE2n vi\xEAn m\u1EDBi ph\u1EA3i kh\xF4ng?"
+  - "Thu\u1EADn: L\xFAc n\xE3y t\xF4i \u0111i ngang h\xE0nh lang ph\xEDa sau b\u1EBFp
+    v\xE0 th\u1EA5y m\u1ED9t b\xF3ng ng\u01B0\u1EDDi \u0111\u1EE9ng im trong g\xF3c
+    t\u1ED1i."
+  - "Thu\u1EADn: T\xF4i g\u1ECDi m\u1EA5y l\u1EA7n m\xE0 n\xF3 kh\xF4ng tr\u1EA3
+    l\u1EDDi, r\u1ED3i \u0111\u1ED9t nhi\xEAn bi\u1EBFn m\u1EA5t. Ch\u1ED7 n\xE0y
+    c\xF3 ma \u0111\u1EA5y, c\u1EADu ph\u1EA3i c\u1EA9n th\u1EADn."
+  - "Thu\u1EADn: Tr\u01B0\u1EDBc khi \u0111i, l\xE0m gi\xFAp t\xF4i m\u1ED9t \u0111\u0129a
+    tr\u1EE9ng chi\xEAn nh\xE9. T\xF4i kh\xF4ng mu\u1ED1n \u1EDF \u0111\xE2y l\xE2u."
+  cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
   cookingTaskText: {fileID: 0}
   plateDropHitbox: {fileID: 6813798319486713023}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Đặt đĩa trứng]'
+  plateInteractionMessage: "[\u0110\u1EB7t \u0111\u0129a tr\u1EE9ng]"
   afterCookingDialogue:
-  - Món ăn ngon lắm!
-  - Cảm ơn đầu bếp!
+  - "Thu\u1EADn: C\u1EA3m \u01A1n, m\xF3n \u0103n ngon l\u1EAFm."
+  - "Thu\u1EADn: Nh\u1EDB l\u1EDDi t\xF4i, n\u1EBFu nghe ti\u1EBFng \u0111\u1ED9ng
+    l\u1EA1 sau b\u1EBFp th\xEC \u0111\u1EEBng \u0111i ki\u1EC3m tra m\u1ED9t m\xECnh."
 --- !u!195 &4882474557559793702
 NavMeshAgent:
   m_ObjectHideFlags: 0

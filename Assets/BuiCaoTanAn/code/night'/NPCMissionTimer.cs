@@ -478,11 +478,8 @@ public class NPCMissionTimer : MonoBehaviour
         if (currentNPC == null)
             yield break;
 
-        // =====================================================
-        // BẮT ĐẦU TIMER
-        // =====================================================
-
-        StartMissionTimer();
+        // Timer chưa chạy khi NPC chỉ vừa đến nơi.
+        // PhuAIMA sẽ báo lại đúng lúc người chơi bắt đầu nói chuyện.
     }
 
 
@@ -527,6 +524,23 @@ public class NPCMissionTimer : MonoBehaviour
     // TIMER
     // =========================================================
 
+    public void BeginCurrentMissionCountdown(
+        PhuAIMA requestingNPC)
+    {
+        if (gameFinished || missionRunning)
+            return;
+
+        // Chỉ NPC đang được Mission Timer quản lý mới có quyền
+        // bắt đầu đếm ngược.
+        if (requestingNPC == null ||
+            requestingNPC != currentPhuAI)
+        {
+            return;
+        }
+
+        StartMissionTimer();
+    }
+
     private void StartMissionTimer()
     {
         if (timerCoroutine != null)
@@ -537,6 +551,9 @@ public class NPCMissionTimer : MonoBehaviour
         currentTime = timeLimit;
 
         missionRunning = true;
+
+        // Hiện đủ thời gian ngay tại frame bắt đầu hội thoại.
+        UpdateTimerUI();
 
         // -----------------------------------------------------
         // RESET SCREEN EFFECT
