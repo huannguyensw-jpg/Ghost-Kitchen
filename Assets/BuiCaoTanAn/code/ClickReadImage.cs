@@ -22,7 +22,6 @@ public class ClickReadImage : MonoBehaviour
 
         if (interactionText != null)
         {
-            CursorFollowInteractionText.Ensure(interactionText);
             interactionText.gameObject.SetActive(false);
         }
 
@@ -82,22 +81,27 @@ public class ClickReadImage : MonoBehaviour
                 new Vector3(0.5f, 0.5f, 0f)
             );
 
-        if (Physics.Raycast(
-                ray,
-                out RaycastHit hit,
-                interactionDistance))
+        RaycastHit[] hits = Physics.RaycastAll(
+            ray,
+            interactionDistance,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide
+        );
+
+        foreach (RaycastHit hit in hits)
         {
-            // Hit chính object
             if (hit.collider.gameObject == gameObject)
             {
                 isLookingAtThis = true;
+                break;
             }
-            // Hoặc hit Collider của object con
-            else if (
+
+            if (
                 hit.collider.transform.IsChildOf(transform)
             )
             {
                 isLookingAtThis = true;
+                break;
             }
         }
 

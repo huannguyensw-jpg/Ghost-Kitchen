@@ -76,6 +76,9 @@ public class NPCMissionTimer : MonoBehaviour
 
     private bool gameFinished = false;
 
+    private bool pausedForResult;
+    private float timeScaleBeforeResult = 1f;
+
     private float currentTime;
 
 
@@ -87,6 +90,10 @@ public class NPCMissionTimer : MonoBehaviour
 
     [SerializeField]
     private Canvas screenCanvas;
+
+    [Tooltip("Sorting Order của Canvas thắng/thua để không bị UI gameplay che.")]
+    [SerializeField]
+    private int resultSortingOrder = 1000;
 
     // ---------------------------------------------------------
     // CHỈ DÙNG CHO HIỆU ỨNG ĐỎ 10 GIÂY CUỐI
@@ -209,6 +216,15 @@ public class NPCMissionTimer : MonoBehaviour
 
     private void Start()
     {
+        PrepareResultCanvas();
+
+        Debug.Log(
+            $"[NIGHT RESULT UI] Start | Canvas={(screenCanvas != null)} | " +
+            $"WinImage={(winScreenImage != null)} | LoseImage={(loseScreenImage != null)} | " +
+            $"AliveText={(aliveText != null)} | DeadText={(deadText != null)}",
+            this
+        );
+
         HideAliveText();
         HideDeadText();
 
@@ -414,14 +430,11 @@ public class NPCMissionTimer : MonoBehaviour
 
         agent.areaMask = areaMask;
         agent.speed = npcMoveSpeed;
-        agent.isStopped = false;
 
         if (!agent.isOnNavMesh)
         {
             agent.Warp(spawnPosition);
         }
-
-        agent.SetDestination(destination);
 
         // =====================================================
         // LẤY PHUAIMA
@@ -450,9 +463,7 @@ public class NPCMissionTimer : MonoBehaviour
                 player,
                 playerHand,
                 stopPoint,
-                spawnPoint,
                 destination,
-                spawnPosition,
                 talkInteractionText,
                 dialoguePanel,
                 dialogueText,
@@ -463,60 +474,6 @@ public class NPCMissionTimer : MonoBehaviour
         }
 
         isSpawningNPC = false;
-
-        // =====================================================
-        // CHỜ NPC ĐI ĐẾN ĐIỂM DỪNG
-        // =====================================================
-
-        yield return StartCoroutine(
-            WaitUntilNPCReachStopPoint(
-                agent,
-                destination
-            )
-        );
-
-        if (currentNPC == null)
-            yield break;
-
-        // Timer chưa chạy khi NPC chỉ vừa đến nơi.
-        // PhuAIMA sẽ báo lại đúng lúc người chơi bắt đầu nói chuyện.
-    }
-
-
-    private IEnumerator WaitUntilNPCReachStopPoint(
-        NavMeshAgent agent,
-        Vector3 destination)
-    {
-        float waitTime = 0f;
-
-        while (agent != null &&
-               currentNPC != null)
-        {
-            if (agent.isStopped)
-                break;
-
-            float distance =
-                Vector3.Distance(
-                    agent.transform.position,
-                    destination
-                );
-
-            if (distance <= 0.5f)
-            {
-                agent.isStopped = true;
-                break;
-            }
-
-            waitTime += Time.deltaTime;
-
-            if (waitTime > 60f)
-            {
-                agent.isStopped = true;
-                break;
-            }
-
-            yield return null;
-        }
     }
 
 
@@ -528,15 +485,33 @@ public class NPCMissionTimer : MonoBehaviour
         PhuAIMA requestingNPC)
     {
         if (gameFinished || missionRunning)
+        {
+            Debug.LogWarning(
+                $"[NIGHT TIMER] Không bắt đầu | " +
+                $"gameFinished={gameFinished} | missionRunning={missionRunning}",
+                this
+            );
             return;
+        }
 
         // Chỉ NPC đang được Mission Timer quản lý mới có quyền
         // bắt đầu đếm ngược.
         if (requestingNPC == null ||
             requestingNPC != currentPhuAI)
         {
+            Debug.LogWarning(
+                $"[NIGHT TIMER] NPC yêu cầu không khớp | " +
+                $"Request={(requestingNPC != null ? requestingNPC.name : "null")} | " +
+                $"Current={(currentPhuAI != null ? currentPhuAI.name : "null")}",
+                this
+            );
             return;
         }
+
+        Debug.Log(
+            $"[NIGHT TIMER] Bắt đầu đếm {timeLimit} giây.",
+            this
+        );
 
         StartMissionTimer();
     }
@@ -684,7 +659,13 @@ public class NPCMissionTimer : MonoBehaviour
 
     private IEnumerator MissionFailedRoutine()
     {
+        gameFinished = true;
         missionRunning = false;
+
+        Debug.Log(
+            "[NIGHT RESULT UI] Bắt đầu luồng THUA.",
+            this
+        );
 
         if (timerText != null)
         {
@@ -731,7 +712,9 @@ public class NPCMissionTimer : MonoBehaviour
 
         if (loseScreenImage != null)
         {
+            PrepareResultCanvas();
             loseScreenImage.gameObject.SetActive(true);
+            loseScreenImage.rectTransform.SetAsLastSibling();
 
             Color color =
                 loseScreenImage.color;
@@ -747,6 +730,20 @@ public class NPCMissionTimer : MonoBehaviour
                     effectDuration
                 )
             );
+
+            Debug.Log(
+                $"[NIGHT RESULT UI] Ảnh THUA đã fade xong | " +
+                $"Active={loseScreenImage.gameObject.activeInHierarchy} | " +
+                $"Alpha={loseScreenImage.color.a}",
+                loseScreenImage
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[NIGHT RESULT UI] Không hiện được UI THUA: Lose Screen Image đang null.",
+                this
+            );
         }
 
         // -----------------------------------------------------
@@ -754,6 +751,8 @@ public class NPCMissionTimer : MonoBehaviour
         // -----------------------------------------------------
 
         ShowDeadText();
+
+        PauseForResultUI();
 
         Debug.Log(
             "NPCMissionTimer: THẤT BẠI - Hết 30 giây."
@@ -767,11 +766,24 @@ public class NPCMissionTimer : MonoBehaviour
 
     public void CompleteCurrentMission()
     {
-        if (gameFinished)
-            return;
+        Debug.Log(
+            $"[NIGHT RESULT UI] CompleteCurrentMission được gọi | " +
+            $"gameFinished={gameFinished} | missionRunning={missionRunning} | " +
+            $"Completed={completedNPCs}/{totalNPCs}",
+            this
+        );
 
-        if (!missionRunning)
+        if (gameFinished)
+        {
+            Debug.LogWarning(
+                "[NIGHT RESULT UI] Bỏ qua hoàn thành vì game đã kết thúc.",
+                this
+            );
             return;
+        }
+
+        // Scene Night chỉ có một NPC ma. Fade hoàn tất là tín hiệu
+        // hoàn thành chính thức, kể cả khi timer chưa được khởi động.
 
         missionRunning = false;
 
@@ -880,6 +892,12 @@ public class NPCMissionTimer : MonoBehaviour
         if (gameFinished)
             return;
 
+        Debug.Log(
+            $"[NIGHT RESULT UI] Đã gọi FinishAllMissions | " +
+            $"Completed={completedNPCs}/{totalNPCs}",
+            this
+        );
+
         gameFinished = true;
 
         missionRunning = false;
@@ -905,7 +923,8 @@ public class NPCMissionTimer : MonoBehaviour
     private IEnumerator FinishGameRoutine()
     {
         Debug.Log(
-            "NPCMissionTimer: ĐÃ HOÀN THÀNH TẤT CẢ NPC."
+            "[NIGHT RESULT UI] Bắt đầu luồng THẮNG - đã hoàn thành tất cả NPC.",
+            this
         );
 
         // -----------------------------------------------------
@@ -953,7 +972,9 @@ public class NPCMissionTimer : MonoBehaviour
 
         if (winScreenImage != null)
         {
+            PrepareResultCanvas();
             winScreenImage.gameObject.SetActive(true);
+            winScreenImage.rectTransform.SetAsLastSibling();
 
             Color color =
                 winScreenImage.color;
@@ -969,6 +990,20 @@ public class NPCMissionTimer : MonoBehaviour
                     effectDuration
                 )
             );
+
+            Debug.Log(
+                $"[NIGHT RESULT UI] Ảnh THẮNG đã fade xong | " +
+                $"Active={winScreenImage.gameObject.activeInHierarchy} | " +
+                $"Alpha={winScreenImage.color.a}",
+                winScreenImage
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[NIGHT RESULT UI] Không hiện được UI THẮNG: Win Screen Image đang null.",
+                this
+            );
         }
 
         // -----------------------------------------------------
@@ -977,7 +1012,9 @@ public class NPCMissionTimer : MonoBehaviour
 
         ShowAliveText();
 
-        yield return new WaitForSeconds(
+        PauseForResultUI();
+
+        yield return new WaitForSecondsRealtime(
             resultTextDuration
         );
 
@@ -1004,6 +1041,19 @@ public class NPCMissionTimer : MonoBehaviour
 
             aliveText.text =
                 "[Bạn đã sống]";
+
+            Debug.Log(
+                $"[NIGHT RESULT UI] Text THẮNG đã bật | " +
+                $"Active={aliveText.gameObject.activeInHierarchy}",
+                aliveText
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[NIGHT RESULT UI] Alive Text đang null.",
+                this
+            );
         }
     }
 
@@ -1031,6 +1081,19 @@ public class NPCMissionTimer : MonoBehaviour
 
             deadText.text =
                 "[Bạn đã chết]";
+
+            Debug.Log(
+                $"[NIGHT RESULT UI] Text THUA đã bật | " +
+                $"Active={deadText.gameObject.activeInHierarchy}",
+                deadText
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[NIGHT RESULT UI] Dead Text đang null.",
+                this
+            );
         }
     }
 
@@ -1053,7 +1116,9 @@ public class NPCMissionTimer : MonoBehaviour
         if (winScreenImage == null)
             return;
 
+        PrepareResultCanvas();
         winScreenImage.gameObject.SetActive(true);
+        winScreenImage.rectTransform.SetAsLastSibling();
 
         Color color =
             winScreenImage.color;
@@ -1089,7 +1154,9 @@ public class NPCMissionTimer : MonoBehaviour
         if (loseScreenImage == null)
             return;
 
+        PrepareResultCanvas();
         loseScreenImage.gameObject.SetActive(true);
+        loseScreenImage.rectTransform.SetAsLastSibling();
 
         Color color =
             loseScreenImage.color;
@@ -1097,6 +1164,71 @@ public class NPCMissionTimer : MonoBehaviour
         color.a = 1f;
 
         loseScreenImage.color = color;
+    }
+
+
+    private void PrepareResultCanvas()
+    {
+        if (screenCanvas == null)
+        {
+            Debug.LogError(
+                "[NIGHT RESULT UI] Screen Canvas đang null.",
+                this
+            );
+            return;
+        }
+
+        screenCanvas.gameObject.SetActive(true);
+        screenCanvas.enabled = true;
+        screenCanvas.overrideSorting = true;
+        screenCanvas.sortingOrder = resultSortingOrder;
+
+        Debug.Log(
+            $"[NIGHT RESULT UI] Canvas sẵn sàng | " +
+            $"Active={screenCanvas.gameObject.activeInHierarchy} | " +
+            $"Enabled={screenCanvas.enabled} | " +
+            $"SortingOrder={screenCanvas.sortingOrder} | " +
+            $"RenderMode={screenCanvas.renderMode}",
+            screenCanvas
+        );
+    }
+
+
+    private void PauseForResultUI()
+    {
+        if (pausedForResult)
+            return;
+
+        pausedForResult = true;
+        timeScaleBeforeResult = Time.timeScale;
+
+        Time.timeScale = 0f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        Debug.Log(
+            "[NIGHT RESULT UI] Đã dừng thời gian và mở chuột để bấm nút.",
+            this
+        );
+    }
+
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+
+        if (pausedForResult)
+        {
+            Time.timeScale = Mathf.Approximately(
+                timeScaleBeforeResult,
+                0f
+            )
+                ? 1f
+                : timeScaleBeforeResult;
+        }
     }
 
 

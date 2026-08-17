@@ -97,7 +97,7 @@ public class PhuAIMA : MonoBehaviour
     [SerializeField]
     private float talkDistance = 3f;
 
-    [Tooltip("Text hiện [Click - Talk].")]
+    [Tooltip("Text hiện [Nhấp chuột - Nói chuyện].")]
     [SerializeField]
     private TMP_Text talkInteractionText;
 
@@ -212,9 +212,7 @@ public class PhuAIMA : MonoBehaviour
         Transform runtimePlayer,
         PlayerHand runtimePlayerHand,
         Transform runtimeTargetPoint,
-        Transform runtimeReturnPoint,
         Vector3 sampledTargetPosition,
-        Vector3 sampledReturnPosition,
         TMP_Text runtimeTalkText,
         GameObject runtimeDialoguePanel,
         TMP_Text runtimeDialogueText,
@@ -442,9 +440,6 @@ public class PhuAIMA : MonoBehaviour
         agent.stoppingDistance =
             arriveDistance;
 
-        agent.isStopped =
-            false;
-
         bool success =
             agent.SetDestination(
                 destination
@@ -627,8 +622,6 @@ public class PhuAIMA : MonoBehaviour
 
         if (IsAgentReady())
         {
-            agent.isStopped = true;
-
             agent.ResetPath();
 
             agent.velocity = Vector3.zero;
@@ -699,6 +692,18 @@ public class PhuAIMA : MonoBehaviour
     {
         currentState =
             State.BeforeCookingDialogue;
+
+        if (NPCMissionTimer.Instance != null)
+        {
+            NPCMissionTimer.Instance.BeginCurrentMissionCountdown(this);
+        }
+        else
+        {
+            Debug.LogError(
+                "PhuAIMA: Không tìm thấy NPCMissionTimer để bắt đầu đếm giờ.",
+                this
+            );
+        }
 
         dialogueIndex = 0;
 
@@ -1081,8 +1086,6 @@ public class PhuAIMA : MonoBehaviour
 
         if (IsAgentReady())
         {
-            agent.isStopped = true;
-
             agent.ResetPath();
 
             agent.velocity =
@@ -1166,8 +1169,6 @@ public class PhuAIMA : MonoBehaviour
 
         if (IsAgentReady())
         {
-            agent.isStopped = true;
-
             agent.ResetPath();
 
             agent.velocity =
@@ -1242,6 +1243,23 @@ public class PhuAIMA : MonoBehaviour
         {
             currentState =
                 State.Finished;
+
+            if (NPCMissionTimer.Instance != null)
+            {
+                Debug.Log(
+                    "[NIGHT RESULT UI] NPC ma fade xong, báo hoàn thành nhiệm vụ.",
+                    this
+                );
+
+                NPCMissionTimer.Instance.CompleteCurrentMission();
+            }
+            else
+            {
+                Debug.LogError(
+                    "[NIGHT RESULT UI] NPC ma fade xong nhưng không tìm thấy NPCMissionTimer.Instance.",
+                    this
+                );
+            }
 
             if (destroyAfterFade)
             {
@@ -1602,13 +1620,14 @@ public class PhuAIMA : MonoBehaviour
             );
 
 
-        RaycastHit hit;
+        RaycastHit[] hits = Physics.RaycastAll(
+            ray,
+            talkDistance + 2f,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide
+        );
 
-
-        if (Physics.Raycast(
-                ray,
-                out hit,
-                talkDistance + 2f))
+        foreach (RaycastHit hit in hits)
         {
             if (
                 hit.collider.gameObject == target ||
@@ -1639,7 +1658,7 @@ public class PhuAIMA : MonoBehaviour
                 talkTextOwner = this;
 
                 talkInteractionText.text =
-                    "[Click - Talk]";
+                    "[Nhấp chuột - Nói chuyện]";
 
                 talkInteractionText.gameObject.SetActive(
                     true

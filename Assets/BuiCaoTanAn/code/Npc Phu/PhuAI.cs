@@ -1231,12 +1231,15 @@ public class PhuAI : MonoBehaviour
                 new Vector3(0.5f, 0.5f, 0f)
             );
 
-        if (Physics.Raycast(
-                ray,
-                out RaycastHit hit,
-                100f))
+        RaycastHit[] hits = Physics.RaycastAll(
+            ray,
+            100f,
+            Physics.DefaultRaycastLayers,
+            QueryTriggerInteraction.Collide
+        );
+
+        foreach (RaycastHit hit in hits)
         {
-            // Chính object
             if (hit.collider.gameObject ==
                 target)
             {

@@ -143,6 +143,9 @@ public class StoveInteraction : MonoBehaviour
                 QueryTriggerInteraction.Collide
             );
 
+        float nearestPanDistance = float.PositiveInfinity;
+        float nearestStoveDistance = float.PositiveInfinity;
+
         foreach (RaycastHit hit in hits)
         {
             if (hit.collider == null)
@@ -156,11 +159,10 @@ public class StoveInteraction : MonoBehaviour
             if (panHitbox != null &&
                 IsHit(hit.collider, panHitbox))
             {
-                isLookingAtPan = true;
-
-                UpdatePanText();
-
-                return;
+                nearestPanDistance = Mathf.Min(
+                    nearestPanDistance,
+                    hit.distance
+                );
             }
 
 
@@ -171,12 +173,27 @@ public class StoveInteraction : MonoBehaviour
             if (stoveHitbox != null &&
                 IsHit(hit.collider, stoveHitbox))
             {
-                isLookingAtStove = true;
+                nearestStoveDistance = Mathf.Min(
+                    nearestStoveDistance,
+                    hit.distance
+                );
+            }
+        }
 
-                UpdateStoveText();
-
+        if (nearestPanDistance <= nearestStoveDistance)
+        {
+            if (!float.IsPositiveInfinity(nearestPanDistance))
+            {
+                isLookingAtPan = true;
+                UpdatePanText();
                 return;
             }
+        }
+        else if (!float.IsPositiveInfinity(nearestStoveDistance))
+        {
+            isLookingAtStove = true;
+            UpdateStoveText();
+            return;
         }
 
         HideText();

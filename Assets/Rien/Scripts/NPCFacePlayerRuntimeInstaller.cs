@@ -12,7 +12,7 @@ public sealed class NPCFacePlayerRuntimeInstaller : MonoBehaviour
             return;
 
         GameObject installerObject = new GameObject(
-            "NPC Face Player Runtime Installer"
+            "Ghost Face Player Runtime Installer"
         );
 
         DontDestroyOnLoad(installerObject);
@@ -25,21 +25,7 @@ public sealed class NPCFacePlayerRuntimeInstaller : MonoBehaviour
             return;
 
         nextScanTime = Time.unscaledTime + ScanInterval;
-        AddToDayNPCs();
         AddToNightNPCs();
-    }
-
-    private static void AddToDayNPCs()
-    {
-        PhuAI[] npcs = FindObjectsByType<PhuAI>(
-            FindObjectsInactive.Exclude,
-            FindObjectsSortMode.None
-        );
-
-        for (int i = 0; i < npcs.Length; i++)
-        {
-            EnsureComponent(npcs[i].gameObject);
-        }
     }
 
     private static void AddToNightNPCs()

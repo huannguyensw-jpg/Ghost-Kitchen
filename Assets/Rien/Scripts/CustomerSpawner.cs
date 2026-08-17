@@ -181,7 +181,12 @@ public class CustomerSpawner : MonoBehaviour
 
     private IEnumerator FinishCustomersAndChangeScene()
     {
-        yield return new WaitForSeconds(
+        Debug.Log(
+            "[MAIN TO NIGHT FADE] Đã hoàn thành toàn bộ NPC, chuẩn bị fade.",
+            this
+        );
+
+        yield return new WaitForSecondsRealtime(
             Mathf.Max(0f, waitBeforeSceneChange)
         );
 
@@ -192,17 +197,17 @@ public class CustomerSpawner : MonoBehaviour
 
     private void InitializeFade()
     {
-        if (fadeCanvas != null)
-        {
-            fadeCanvas.gameObject.SetActive(false);
-        }
-
         if (fadeImage != null)
         {
             Color color = fadeImage.color;
             color.a = 0f;
             fadeImage.color = color;
             fadeImage.gameObject.SetActive(false);
+        }
+
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(false);
         }
     }
 
@@ -211,16 +216,18 @@ public class CustomerSpawner : MonoBehaviour
         if (fadeImage == null)
         {
             Debug.LogWarning(
-                "CustomerSpawner: Chưa gán Fade Image.",
+                "[MAIN TO NIGHT FADE] Chưa gán Fade Image.",
                 this
             );
             yield break;
         }
 
-        if (fadeCanvas != null)
+        if (fadeCanvas == null)
         {
-            fadeCanvas.gameObject.SetActive(true);
+            fadeCanvas = fadeImage.GetComponentInParent<Canvas>(true);
         }
+
+        PrepareFadeVisuals();
 
         fadeImage.gameObject.SetActive(true);
 
@@ -228,10 +235,22 @@ public class CustomerSpawner : MonoBehaviour
         color.a = 0f;
         fadeImage.color = color;
 
+        Canvas.ForceUpdateCanvases();
+
+        // Chờ một frame trong suốt để Canvas vừa được bật chắc chắn
+        // được camera dựng trước khi bắt đầu tăng alpha.
+        yield return null;
+
+        Debug.Log(
+            $"[MAIN TO NIGHT FADE] Bắt đầu fade trong {fadeDuration:0.##} giây.",
+            this
+        );
+
         if (fadeDuration <= 0f)
         {
             color.a = 1f;
             fadeImage.color = color;
+            yield return null;
             yield break;
         }
 
@@ -247,6 +266,48 @@ public class CustomerSpawner : MonoBehaviour
 
         color.a = 1f;
         fadeImage.color = color;
+
+        // Giữ ít nhất một frame đen hoàn toàn trước khi load Night.
+        yield return null;
+
+        Debug.Log(
+            "[MAIN TO NIGHT FADE] Fade hoàn tất, bắt đầu load scene Night.",
+            this
+        );
+    }
+
+    private void PrepareFadeVisuals()
+    {
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(true);
+            fadeCanvas.enabled = true;
+
+            // Overlay không phụ thuộc Main Camera/Cinemachine nên luôn hiện
+            // trong lúc đổi từ Main Game sang Night.
+            fadeCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            fadeCanvas.worldCamera = null;
+            fadeCanvas.overrideSorting = true;
+            fadeCanvas.sortingOrder = short.MaxValue;
+
+            RectTransform canvasRect =
+                fadeCanvas.transform as RectTransform;
+
+            if (canvasRect != null)
+            {
+                canvasRect.localScale = Vector3.one;
+            }
+        }
+
+        RectTransform imageRect = fadeImage.rectTransform;
+        imageRect.SetAsLastSibling();
+        imageRect.anchorMin = Vector2.zero;
+        imageRect.anchorMax = Vector2.one;
+        imageRect.anchoredPosition = Vector2.zero;
+        imageRect.sizeDelta = Vector2.zero;
+        imageRect.localScale = Vector3.one;
+
+        fadeImage.raycastTarget = true;
     }
 
     private void LoadNextScene()
@@ -268,6 +329,10 @@ public class CustomerSpawner : MonoBehaviour
         }
 
         Time.timeScale = 1f;
+        Debug.Log(
+            $"[MAIN TO NIGHT FADE] Load scene '{resolvedSceneName}'.",
+            this
+        );
         SceneManager.LoadScene(resolvedSceneName);
     }
 
