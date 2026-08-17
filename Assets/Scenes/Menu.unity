@@ -2083,6 +2083,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1644261346}
   - component: {fileID: 1644261345}
+  - component: {fileID: 1644261347}
   m_Layer: 0
   m_Name: MasterVolume
   m_TagString: Untagged
@@ -2101,11 +2102,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 2843058626285008837, guid: 46d3329c0ba9b984bb808e4047551909, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 1f0580721925ce5499763e7145e31ed9, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 0.2
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -2202,6 +2203,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1644261347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644261344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eb00528c6b115148aa540b5a3ab8e8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomMusicPlayer
+  musicPlaylist:
+  - {fileID: 8300000, guid: 5cade66d8371cea4885c58f2d7f59ed6, type: 3}
+  playOnStart: 1
+  loopPlaylist: 1
 --- !u!1 &1678110752
 GameObject:
   m_ObjectHideFlags: 0
