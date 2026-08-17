@@ -29,8 +29,26 @@ public class SceneController : MonoBehaviour
 
     public void LoadSceneByName(string sceneName)
     {
-        Time.timeScale = 1f; 
-        SceneManager.LoadScene(sceneName);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(ResolveSceneName(sceneName));
+    }
+
+    public static string ResolveSceneName(string sceneName)
+    {
+        switch (sceneName)
+        {
+            case "Introduction":
+                return "Introductionnhat";
+
+            case "Maingame":
+                return "Maingameminhnhat";
+
+            case "Night":
+                return "Nightnhat";
+
+            default:
+                return sceneName;
+        }
     }
 
     public void LoadSceneByIndex(int sceneIndex)

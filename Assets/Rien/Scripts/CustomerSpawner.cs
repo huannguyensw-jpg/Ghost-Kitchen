@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using TMPro;
 
 public class CustomerSpawner : MonoBehaviour
@@ -70,15 +72,38 @@ public class CustomerSpawner : MonoBehaviour
     [Tooltip("UI hướng dẫn đặt đĩa dùng chung cho NPC.")]
     public TMP_Text plateInteractionText;
 
+    [Header("Scene Transition")]
+    [Tooltip("Scene chuyển tới sau khi toàn bộ customer đã hoàn thành và despawn.")]
+    [SerializeField]
+    private string nextSceneName = "Night";
+
+    [Min(0f)]
+    [SerializeField]
+    private float waitBeforeSceneChange = 0f;
+
+    [Tooltip("Thời gian màn hình tối dần trước khi chuyển scene.")]
+    [Min(0f)]
+    [SerializeField]
+    private float fadeDuration = 2f;
+
+    [SerializeField]
+    private Canvas fadeCanvas;
+
+    [SerializeField]
+    private Image fadeImage;
+
     private Coroutine spawnCoroutine;
+    private Coroutine sceneTransitionCoroutine;
     private int spawnedCount;
     private GameObject currentCustomer;
+    private bool sceneTransitionStarted;
     private readonly List<GameObject> shuffledCustomerPrefabs =
         new List<GameObject>();
     private GameObject lastSelectedPrefab;
 
     private void OnEnable()
     {
+        InitializeFade();
         spawnCoroutine = StartCoroutine(SpawnLoop());
     }
 
@@ -88,6 +113,12 @@ public class CustomerSpawner : MonoBehaviour
         {
             StopCoroutine(spawnCoroutine);
             spawnCoroutine = null;
+        }
+
+        if (sceneTransitionCoroutine != null)
+        {
+            StopCoroutine(sceneTransitionCoroutine);
+            sceneTransitionCoroutine = null;
         }
     }
 
@@ -115,7 +146,129 @@ public class CustomerSpawner : MonoBehaviour
             }
         }
 
+        // Sau khi spawn NPC cuối, CanSpawn() trở thành false ngay.
+        // Vẫn phải chờ NPC cuối despawn rồi mới chuyển scene.
+        if (currentCustomer != null)
+        {
+            yield return new WaitUntil(
+                () => currentCustomer == null
+            );
+        }
+
         spawnCoroutine = null;
+
+        if (useSpawnLimit &&
+            spawnedCount >= maximumSpawnCount &&
+            currentCustomer == null)
+        {
+            StartSceneTransition();
+        }
+    }
+
+    private void StartSceneTransition()
+    {
+        if (sceneTransitionStarted ||
+            string.IsNullOrWhiteSpace(nextSceneName))
+        {
+            return;
+        }
+
+        sceneTransitionStarted = true;
+        sceneTransitionCoroutine = StartCoroutine(
+            FinishCustomersAndChangeScene()
+        );
+    }
+
+    private IEnumerator FinishCustomersAndChangeScene()
+    {
+        yield return new WaitForSeconds(
+            Mathf.Max(0f, waitBeforeSceneChange)
+        );
+
+        yield return StartCoroutine(FadeToBlack());
+
+        LoadNextScene();
+    }
+
+    private void InitializeFade()
+    {
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(false);
+        }
+
+        if (fadeImage != null)
+        {
+            Color color = fadeImage.color;
+            color.a = 0f;
+            fadeImage.color = color;
+            fadeImage.gameObject.SetActive(false);
+        }
+    }
+
+    private IEnumerator FadeToBlack()
+    {
+        if (fadeImage == null)
+        {
+            Debug.LogWarning(
+                "CustomerSpawner: Chưa gán Fade Image.",
+                this
+            );
+            yield break;
+        }
+
+        if (fadeCanvas != null)
+        {
+            fadeCanvas.gameObject.SetActive(true);
+        }
+
+        fadeImage.gameObject.SetActive(true);
+
+        Color color = fadeImage.color;
+        color.a = 0f;
+        fadeImage.color = color;
+
+        if (fadeDuration <= 0f)
+        {
+            color.a = 1f;
+            fadeImage.color = color;
+            yield break;
+        }
+
+        float timer = 0f;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+            color.a = Mathf.Clamp01(timer / fadeDuration);
+            fadeImage.color = color;
+            yield return null;
+        }
+
+        color.a = 1f;
+        fadeImage.color = color;
+    }
+
+    private void LoadNextScene()
+    {
+        string resolvedSceneName =
+            SceneController.ResolveSceneName(nextSceneName);
+
+        if (!Application.CanStreamedLevelBeLoaded(resolvedSceneName))
+        {
+            Debug.LogError(
+                $"CustomerSpawner: Scene '{resolvedSceneName}' " +
+                "chưa có trong Build Settings.",
+                this
+            );
+
+            sceneTransitionStarted = false;
+            sceneTransitionCoroutine = null;
+            return;
+        }
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(resolvedSceneName);
     }
 
     private bool CanSpawn()

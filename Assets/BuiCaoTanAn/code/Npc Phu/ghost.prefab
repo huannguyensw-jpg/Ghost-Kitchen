@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4865826710831962491}
   - component: {fileID: 8550776687150580658}
   - component: {fileID: -2665183451322100736}
+  - component: {fileID: 1599357274939151193}
   m_Layer: 0
   m_Name: ghost
   m_TagString: Customer
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.2786867, y: 5.12, z: 26.56272}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2012442769084658197}
@@ -73,7 +74,7 @@ MonoBehaviour:
   player: {fileID: 0}
   playerHand: {fileID: 0}
   targetPoint: {fileID: 0}
-  moveSpeed: 50
+  moveSpeed: 30
   arriveDistance: 0.3
   fadeDuration: 1.5
   fadeDelay: 0
@@ -121,13 +122,13 @@ CapsuleCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.052
-  m_Height: 0.116
+  m_Radius: 0.06398371
+  m_Height: 0.17884281
   m_Direction: 1
-  m_Center: {x: 0, y: -0.00754316, z: 0}
+  m_Center: {x: -0.00042889593, y: -0.03896475, z: 0}
 --- !u!64 &-2665183451322100736
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -147,9 +148,26 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!114 &1599357274939151193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2338809964794006119}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c57ee24cd94dd88c25ff46ba608a31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCAlwaysFacePlayer
+  player: {fileID: 0}
+  horizontalOnly: 1
+  modelFrontAxis: 1
+  customLocalFront: {x: 0, y: 0, z: 1}
+  frontAngleOffset: -90
 --- !u!1 &4261464920049217818
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,6 +179,7 @@ GameObject:
   - component: {fileID: 2012442769084658197}
   - component: {fileID: 1945814462404989738}
   - component: {fileID: 4646749477507139719}
+  - component: {fileID: 1706408207074163896}
   m_Layer: 0
   m_Name: pCube1
   m_TagString: Untagged
@@ -240,3 +259,25 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1706408207074163896
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4261464920049217818}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4068373912626513877, guid: dd35ec5e6ee090449b397c1c614fca90, type: 3}

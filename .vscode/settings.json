@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Ghost-Kitchen.slnx"
+    "dotnet.defaultSolution": "Ghost Kitchen.slnx"
 }

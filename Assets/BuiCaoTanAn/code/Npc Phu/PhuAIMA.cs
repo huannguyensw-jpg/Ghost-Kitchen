@@ -1596,13 +1596,9 @@ public class PhuAIMA : MonoBehaviour
         }
 
 
-        if (Mouse.current == null)
-            return false;
-
-
         Ray ray =
-            playerCamera.ScreenPointToRay(
-                Mouse.current.position.ReadValue()
+            playerCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f, 0f)
             );
 
 

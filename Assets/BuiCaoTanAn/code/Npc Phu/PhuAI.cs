@@ -178,9 +178,6 @@ public class PhuAI : MonoBehaviour
         platePlacePoint = runtimePlatePlacePoint;
         plateInteractionText = runtimePlateInteractionText;
 
-        CursorFollowInteractionText.Ensure(talkInteractionText);
-        CursorFollowInteractionText.Ensure(plateInteractionText);
-
         AssignPrefabLocalReferences();
 
         Debug.Log(
@@ -1229,20 +1226,9 @@ public class PhuAI : MonoBehaviour
         if (playerCamera == null)
             return false;
 
-        if (Mouse.current == null)
-            return false;
-
-        Vector2 screenPoint =
-            Cursor.lockState == CursorLockMode.Locked
-                ? new Vector2(
-                    Screen.width * 0.5f,
-                    Screen.height * 0.5f
-                )
-                : Mouse.current.position.ReadValue();
-
         Ray ray =
-            playerCamera.ScreenPointToRay(
-                screenPoint
+            playerCamera.ViewportPointToRay(
+                new Vector3(0.5f, 0.5f, 0f)
             );
 
         if (Physics.Raycast(

@@ -74,6 +74,10 @@ public class Custom : MonoBehaviour
 
 #endif
 
+    [Tooltip("Tên scene dùng trong bản build. Có thể dùng tên gọi thường như Maingame.")]
+    [SerializeField]
+    private string nextSceneName = "Maingame";
+
     [Tooltip("Canvas chứa Fade Image.")]
     [SerializeField]
     private Canvas fadeCanvas;
@@ -534,48 +538,34 @@ public class Custom : MonoBehaviour
             "===== LOAD SCENE ====="
         );
 
+        string sceneName = nextSceneName;
+
 #if UNITY_EDITOR
+        if (nextScene != null)
+        {
+            string scenePath =
+                AssetDatabase.GetAssetPath(nextScene);
 
-        // -----------------------------------------------------
-        // KIỂM TRA SCENE ĐÃ KÉO CHƯA
-        // -----------------------------------------------------
+            if (!string.IsNullOrEmpty(scenePath))
+            {
+                sceneName =
+                    System.IO.Path.GetFileNameWithoutExtension(
+                        scenePath
+                    );
+            }
+        }
+#endif
 
-        if (nextScene == null)
+        sceneName = SceneController.ResolveSceneName(sceneName);
+
+        if (string.IsNullOrWhiteSpace(sceneName))
         {
             Debug.LogError(
-                "❌ CustomerSpawner: " +
-                "Chưa kéo Scene .unity vào Next Scene!"
+                "❌ CustomerSpawner: Chưa cấu hình scene đích."
             );
 
             return;
         }
-
-        // -----------------------------------------------------
-        // LẤY ĐƯỜNG DẪN SCENE
-        // -----------------------------------------------------
-
-        string scenePath =
-            AssetDatabase.GetAssetPath(
-                nextScene
-            );
-
-        if (string.IsNullOrEmpty(scenePath))
-        {
-            Debug.LogError(
-                "❌ Không lấy được đường dẫn Scene."
-            );
-
-            return;
-        }
-
-        // -----------------------------------------------------
-        // LẤY TÊN SCENE
-        // -----------------------------------------------------
-
-        string sceneName =
-            System.IO.Path.GetFileNameWithoutExtension(
-                scenePath
-            );
 
         Debug.Log(
             "🎬 Scene đích: " +
@@ -611,15 +601,6 @@ public class Custom : MonoBehaviour
         SceneManager.LoadScene(
             sceneName
         );
-
-#else
-
-        Debug.LogError(
-            "❌ Không thể sử dụng SceneAsset " +
-            "trực tiếp trong bản Build."
-        );
-
-#endif
     }
 
     // =========================================================

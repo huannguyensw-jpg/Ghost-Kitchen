@@ -83,11 +83,11 @@ MonoBehaviour:
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - "Kh\xE1 B\u1EA3nh: Ch\xE0o \u0111\u1EA7u b\u1EBFp, h\xF4m nay qu\xE1n \u0111\xF4ng
+  - "\u0110\u1ED9 Mixi: Ch\xE0o \u0111\u1EA7u b\u1EBFp, h\xF4m nay qu\xE1n \u0111\xF4ng
     kh\xE1ch kh\xF4ng?"
-  - "Kh\xE1 B\u1EA3nh: Cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn th\u1EADt
+  - "\u0110\u1ED9 Mixi: Cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn th\u1EADt
     \u0111\u1EB9p m\u1EAFt nh\xE9."
-  - "Kh\xE1 B\u1EA3nh: T\xF4i \u0111\u1EE9ng ch\u1EDD \u1EDF \u0111\xE2y, l\xE0m
+  - "\u0110\u1ED9 Mixi: T\xF4i \u0111\u1EE9ng ch\u1EDD \u1EDF \u0111\xE2y, l\xE0m
     n\xF3ng gi\xF2n m\u1ED9t ch\xFAt l\xE0 chu\u1EA9n."
   cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
   cookingTaskText: {fileID: 0}

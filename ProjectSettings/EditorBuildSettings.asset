@@ -9,14 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 5ea705602e871ee489cbd4caff271b1d
   - enabled: 1
-    path: Assets/BuiCaoTanAn/Scenes/Introduction.unity
-    guid: 3e89eeb86ea83af4e9e130ffe34bbad5
+    path: Assets/minhnhat/Scenes/Introductionnhat.unity
+    guid: bdfdd02eb39cc3041b9b36dad8cdf48a
   - enabled: 1
-    path: Assets/BuiCaoTanAn/Scenes/Maingame.unity
-    guid: 462d09aa40a540144a58fde66a983533
+    path: Assets/minhnhat/Scenes/Maingameminhnhat.unity
+    guid: b7a1c2811b3c5ad439a20bccb04be69d
   - enabled: 1
-    path: Assets/BuiCaoTanAn/Scenes/Night.unity
-    guid: fbc16876ff2c36244a752977cd6ef03f
+    path: Assets/minhnhat/Scenes/Nightnhat.unity
+    guid: 8871eae1ac69e3a44bc11f873a092688
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
