@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NguyenDeadMen
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6c627bbdd1a9a1d43bd6f99eed04c37c, type: 3}
+      propertyPath: m_TagString
+      value: Customer
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -101,26 +105,24 @@ MonoBehaviour:
   moveSpeed: 40
   arriveDistance: 2
   returnPoint: {fileID: 0}
-  minimumDespawnDelay: 5
-  maximumDespawnDelay: 10
   talkHitbox: {fileID: 2295760001670993513}
   talkDistance: 50
   talkInteractionText: {fileID: 0}
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - Xin chào!
-  - Hôm nay đầu bếp khỏe không?
-  - Cho tôi một đĩa trứng chiên nhé.
-  cookingText: '[Nấu một đĩa trứng chiên]'
+  - "Xin ch\xE0o!"
+  - "H\xF4m nay \u0111\u1EA7u b\u1EBFp kh\u1ECFe kh\xF4ng?"
+  - "Cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn nh\xE9."
+  cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
   cookingTaskText: {fileID: 0}
   plateDropHitbox: {fileID: 2295760001670993513}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Đặt đĩa trứng]'
+  plateInteractionMessage: "[\u0110\u1EB7t \u0111\u0129a tr\u1EE9ng]"
   afterCookingDialogue:
-  - Món ăn ngon lắm!
-  - Cảm ơn đầu bếp!
+  - "M\xF3n \u0103n ngon l\u1EAFm!"
+  - "C\u1EA3m \u01A1n \u0111\u1EA7u b\u1EBFp!"
 --- !u!195 &7975924554103124345
 NavMeshAgent:
   m_ObjectHideFlags: 0

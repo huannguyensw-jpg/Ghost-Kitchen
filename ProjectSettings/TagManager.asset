@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - DeleteEgg
+  - Customer
   layers:
   - Default
   - TransparentFX

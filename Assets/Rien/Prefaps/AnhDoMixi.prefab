@@ -36,6 +36,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AnhDoMixi
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 22638f88f4b5df94d993f43fec29e5a9, type: 3}
+      propertyPath: m_TagString
+      value: Customer
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -50,7 +54,7 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 7100000000000000004}
   m_SourcePrefab: {fileID: 100100000, guid: 22638f88f4b5df94d993f43fec29e5a9, type: 3}
---- !u!1 &7100000000000000001 stripped
+--- !u!1 &7946933251766697297 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 22638f88f4b5df94d993f43fec29e5a9, type: 3}
   m_PrefabInstance: {fileID: 7100000000000000000}
@@ -61,11 +65,11 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7100000000000000001}
+  m_GameObject: {fileID: 7946933251766697297}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a801b4088981da44af1cb6965d93362, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhuAI
   player: {fileID: 0}
   playerHand: {fileID: 0}
@@ -73,33 +77,35 @@ MonoBehaviour:
   moveSpeed: 40
   arriveDistance: 2
   returnPoint: {fileID: 0}
-  minimumDespawnDelay: 5
-  maximumDespawnDelay: 10
-  talkHitbox: {fileID: 7100000000000000001}
+  talkHitbox: {fileID: 7946933251766697297}
   talkDistance: 50
   talkInteractionText: {fileID: 0}
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   beforeCookingDialogue:
-  - "Độ Mixi: Chào đầu bếp, quán hôm nay trông ấm cúng phết đấy."
-  - "Độ Mixi: Tôi vừa đi đường xa tới, làm cho tôi một đĩa trứng chiên nóng nhé."
-  - "Độ Mixi: Chiên vừa chín thôi, đừng để cháy là được."
-  cookingText: '[Nấu một đĩa trứng chiên]'
+  - "\u0110\u1ED9 Mixi: Ch\xE0o \u0111\u1EA7u b\u1EBFp, qu\xE1n h\xF4m nay tr\xF4ng
+    \u1EA5m c\xFAng ph\u1EBFt \u0111\u1EA5y."
+  - "\u0110\u1ED9 Mixi: T\xF4i v\u1EEBa \u0111i \u0111\u01B0\u1EDDng xa t\u1EDBi,
+    l\xE0m cho t\xF4i m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn n\xF3ng nh\xE9."
+  - "\u0110\u1ED9 Mixi: Chi\xEAn v\u1EEBa ch\xEDn th\xF4i, \u0111\u1EEBng \u0111\u1EC3
+    ch\xE1y l\xE0 \u0111\u01B0\u1EE3c."
+  cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
   cookingTaskText: {fileID: 0}
-  plateDropHitbox: {fileID: 7100000000000000001}
+  plateDropHitbox: {fileID: 7946933251766697297}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Đặt đĩa trứng]'
+  plateInteractionMessage: "[\u0110\u1EB7t \u0111\u0129a tr\u1EE9ng]"
   afterCookingDialogue:
-  - "Độ Mixi: Đúng món tôi cần rồi, thơm đấy!"
-  - "Độ Mixi: Cảm ơn đầu bếp, lần sau tôi lại ghé."
+  - "\u0110\u1ED9 Mixi: \u0110\xFAng m\xF3n t\xF4i c\u1EA7n r\u1ED3i, th\u01A1m \u0111\u1EA5y!"
+  - "\u0110\u1ED9 Mixi: C\u1EA3m \u01A1n \u0111\u1EA7u b\u1EBFp, l\u1EA7n sau t\xF4i
+    l\u1EA1i gh\xE9."
 --- !u!195 &7100000000000000003
 NavMeshAgent:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7100000000000000001}
+  m_GameObject: {fileID: 7946933251766697297}
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
@@ -121,7 +127,7 @@ BoxCollider:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7100000000000000001}
+  m_GameObject: {fileID: 7946933251766697297}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2

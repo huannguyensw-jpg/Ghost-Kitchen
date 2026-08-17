@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 1165260538639169483}
   m_Layer: 0
   m_Name: PlayerLinh(Clone)
-  m_TagString: Untagged
+  m_TagString: Customer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -182,8 +182,6 @@ MonoBehaviour:
   moveSpeed: 40
   arriveDistance: 2
   returnPoint: {fileID: 0}
-  minimumDespawnDelay: 5
-  maximumDespawnDelay: 10
   talkHitbox: {fileID: 3576223218305930267}
   talkDistance: 50
   talkInteractionText: {fileID: 0}

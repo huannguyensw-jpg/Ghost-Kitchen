@@ -64,6 +64,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AnhJemFPT
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5c53bd2c11ecb2742a8d26968b0166ee, type: 3}
+      propertyPath: m_TagString
+      value: Customer
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -117,12 +121,12 @@ MonoBehaviour:
     \u0111\u1EEBng \u0111\u1EC3 tr\u1EE9ng b\u1ECB ch\xE1y."
   - "Qu\u1EA3n l\xFD: Khi l\xE0m xong, mang \u0111\u0129a \u0111\u1EBFn \u0111\xE2y.
     T\xF4i s\u1EBD \u0111\xE1nh gi\xE1 k\u1EBFt qu\u1EA3."
-  cookingText: '[Nấu một đĩa trứng chiên]'
+  cookingText: "[N\u1EA5u m\u1ED9t \u0111\u0129a tr\u1EE9ng chi\xEAn]"
   cookingTaskText: {fileID: 0}
   plateDropHitbox: {fileID: 8887398776584402675}
   platePlacePoint: {fileID: 0}
   plateInteractionText: {fileID: 0}
-  plateInteractionMessage: '[Đặt đĩa trứng]'
+  plateInteractionMessage: "[\u0110\u1EB7t \u0111\u0129a tr\u1EE9ng]"
   afterCookingDialogue:
   - "Qu\u1EA3n l\xFD: \u0110\u01B0\u1EE3c r\u1ED3i, \u0111\u1EC3 t\xF4i xem..."
   - "Qu\u1EA3n l\xFD: M\xF3n \u0103n \u0111\u1EA1t y\xEAu c\u1EA7u. T\u1ED1c \u0111\u1ED9

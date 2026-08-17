@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -2665183451322100736}
   m_Layer: 0
   m_Name: ghost
-  m_TagString: Untagged
+  m_TagString: Customer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,8 +105,8 @@ MonoBehaviour:
     c\u0103n b\u1EBFp n\xE0y."
   - "Ma: Nh\u01B0ng n\u1EBFu nghe ti\u1EBFng g\u1ECDi sau n\u1EEDa \u0111\xEAm...
     \u0111\u1EEBng bao gi\u1EDD quay \u0111\u1EA7u l\u1EA1i."
---- !u!65 &8550776687150580658
-BoxCollider:
+--- !u!136 &8550776687150580658
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -123,9 +123,11 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.12750034, y: 0.16735992, z: 0.14171569}
-  m_Center: {x: -0.0057224557, y: -0.028109321, z: -0.0064622876}
+  serializedVersion: 2
+  m_Radius: 0.052
+  m_Height: 0.116
+  m_Direction: 1
+  m_Center: {x: 0, y: -0.00754316, z: 0}
 --- !u!64 &-2665183451322100736
 MeshCollider:
   m_ObjectHideFlags: 0

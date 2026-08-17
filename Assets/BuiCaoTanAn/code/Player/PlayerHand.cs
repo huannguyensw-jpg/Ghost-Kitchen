@@ -6,10 +6,6 @@ using UnityEngine.InputSystem;
 public class PlayerHand : MonoBehaviour
 {
     [Header("First Person View")]
-    [SerializeField] private bool followPlayerCamera = true;
-    [SerializeField] private Vector3 viewLocalPosition =
-        new Vector3(1.15f, -1.01f, 1.6f);
-    [SerializeField] private Vector3 viewLocalEulerAngles;
     [SerializeField] private int firstPersonLayer = 8;
 
     [Header("Hand Point")]
@@ -45,21 +41,6 @@ public class PlayerHand : MonoBehaviour
         {
             DropItem();
         }
-    }
-
-    private void LateUpdate()
-    {
-        if (!followPlayerCamera || playerCamera == null)
-            return;
-
-        Transform cameraTransform = playerCamera.transform;
-
-        transform.position =
-            cameraTransform.TransformPoint(viewLocalPosition);
-
-        transform.rotation =
-            cameraTransform.rotation *
-            Quaternion.Euler(viewLocalEulerAngles);
     }
 
     // =========================
